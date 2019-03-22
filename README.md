@@ -1,4 +1,4 @@
-# ln-ui
+# lnforum-ui-reactflux
 
 ## dependencies
 

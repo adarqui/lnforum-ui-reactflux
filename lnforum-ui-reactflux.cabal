@@ -1,8 +1,8 @@
-name:                ln-ui-reactflux
+name:                lnforum-ui-reactflux
 version:             0.1.0.1
 synopsis:            LN.UI.ReactFlux using React Flux
 description:         Please see README.md
-homepage:            https://github.com/adarqui/ln-ui-reactflux#readme
+homepage:            https://github.com/adarqui/lnforum-ui-reactflux#readme
 license:             BSD3
 license-file:        LICENSE
 author:              Andrew Darqui
@@ -69,10 +69,10 @@ library
                      , transformers
                      , tuple
                      , web-routes == 99.99
-                     , ln-sanitize
-                     , ln-validate
-                     , ln-ui-core
-                     , haskell-ln-types
+                     , lnforum-sanitize
+                     , lnforum-validate
+                     , lnforum-ui-core
+                     , lnforum-types-gen
                      , haskell-api-helpers-shared
                      , haskell-bbcode-parser
                      , haskell-bbcode-parser-reactflux
@@ -81,13 +81,13 @@ library
                      , haskell-ebyam
                      , haskell-rehtie
   if impl(ghcjs)
-     build-depends:    ghcjs-base, haskell-api-helpers-ghcjs, ln-api-ghcjs
+     build-depends:    ghcjs-base, haskell-api-helpers-ghcjs, lnforum-api-ghcjs
   else
-    build-depends:     haskell-api-helpers, ln-api
+    build-depends:     haskell-api-helpers, lnforum-api
   ghc-options:         -Wall
   default-language:    Haskell2010
 
-test-suite ln-ui-reactflux-test
+test-suite lnforum-ui-reactflux-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
   main-is:             Spec.hs
@@ -96,11 +96,11 @@ test-suite ln-ui-reactflux-test
                      , hspec
                      , text
                      , web-routes
-                     , haskell-ln-types
-                     , ln-ui-reactflux
+                     , lnforum-types-gen
+                     , lnforum-ui-reactflux
   ghc-options:         -Wall -O2 -threaded -rtsopts -with-rtsopts=-N
   default-language:    Haskell2010
 
 source-repository head
   type:     git
-  location: https://github.com/adarqui/ln-ui-reactflux
+  location: https://github.com/adarqui/lnforum-ui-reactflux
