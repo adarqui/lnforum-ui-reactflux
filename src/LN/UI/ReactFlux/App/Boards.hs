@@ -43,10 +43,8 @@ import           LN.Sanitize.Internal                  (toSafeUrl)
 import           LN.T.Board
 import           LN.T.Convert
 import           LN.T.Forum
-import           LN.T.Organization
 import           LN.T.Pack.Board
 import           LN.T.Pack.Forum
-import           LN.T.Pack.Organization
 import           LN.T.Pack.Thread
 import           LN.T.Pack.ThreadPost
 import           LN.T.Param
@@ -97,36 +95,24 @@ import           LN.UI.ReactFlux.View.Internal
 
 viewIndex
   :: PageInfo
-  -> Loader (Maybe OrganizationPackResponse)
-  -> Loader (Maybe ForumPackResponse)
   -> Loader (Map BoardId BoardPackResponse)
   -> HTMLView_
 
-viewIndex !page_info' !l_m_organization' !l_m_forum' !l_boards' = do
-  defineViewWithSKey "boards-index-1" (page_info', l_m_organization', l_m_forum', l_boards') $ \(page_info, l_m_organization, l_m_forum, l_boards) -> do
+viewIndex !page_info' !l_boards' = do
+  defineViewWithSKey "boards-index-1" (page_info', l_boards') $ \(page_info, l_boards) -> do
     h1_ [className_ B.textCenter] $ elemText "Boards"
-    Loader.maybeLoader2 l_m_organization l_m_forum $ \organization forum -> do
-      Loader.loader1 l_boards $ \boards -> do
-        viewIndex_ page_info organization forum boards
+    Loader.loader1 l_boards $ \boards -> do
+      viewIndex_ page_info boards
 
 
 
 viewIndex_
   :: PageInfo
-  -> OrganizationPackResponse
-  -> ForumPackResponse
   -> Map BoardId BoardPackResponse
   -> HTMLView_
 
-viewIndex_ !page_info' !organization' !forum' !boards_map' = do
-  defineViewWithSKey "boards-index-2" (page_info', organization', forum', boards_map') $ \(page_info, organization, forum, boards_map) -> do
-
-    let
-      OrganizationPackResponse{..} = organization
-      OrganizationResponse{..}     = organizationPackResponseOrganization
-      ForumPackResponse{..}        = forum
-      ForumResponse{..}            = forumPackResponseForum
-
+viewIndex_ !page_info' !boards_map' = do
+  defineViewWithSKey "boards-index-2" (page_info', boards_map') $ \(page_info, boards_map) -> do
     ul_ [className_ B.listUnstyled] $
       forM_ (Map.elems boards_map) $ \BoardPackResponse{..} -> do
         let
@@ -140,7 +126,7 @@ viewIndex_ !page_info' !organization' !forum' !boards_map' = do
             cldiv_ B.colXs1 $ do
               p_ $ elemText "icon"
             cldiv_ B.colXs5 $ do
-              p_ $ ahrefName boardResponseDisplayName $ routeWith' $ OrganizationsForumsBoards organizationResponseName forumResponseName (ShowS boardResponseName)
+              p_ $ ahrefName boardResponseDisplayName $ routeWith' $ Boards (ShowS boardResponseName)
               p_ $ elemText $ maybe "No description." id boardResponseDescription
             cldiv_ B.colXs2 $ do
               showTableClean
@@ -160,7 +146,7 @@ viewIndex_ !page_info' !organization' !forum' !boards_map' = do
                       ahref $ routeWith' (Users (ShowS userSanitizedResponseName))
                     p_ $ do
                       elemText "in "
-                      ahref $ routeWith (OrganizationsForumsBoardsThreads organizationResponseName forumResponseName boardResponseName (ShowS threadResponseName)) [(ParamTag_Offset, Offset (-1))]
+                      ahref $ routeWith (BoardsThreads boardResponseName (ShowS threadResponseName)) [(ParamTag_Offset, Offset (-1))]
                     p_ $ elemText $ prettyUTCTimeMaybe threadPostResponseCreatedAt
                 _ -> div_ $ p_ $ elemText "No posts."
             cldiv_ B.colXs1 $ do
@@ -169,11 +155,11 @@ viewIndex_ !page_info' !organization' !forum' !boards_map' = do
                   -- ACCESS: Forum
                   -- * Create: can create boards
                   --
-                  permissionsMatchCreateHTML
-                    forumPackResponsePermissions
+                  -- permissionsMatchCreateHTML
+                    -- forumPackResponsePermissions
                     -- TODO FIXME: Child board
-                    (button_newBoard $ routeWith' $ OrganizationsForumsBoards organizationResponseName forumResponseName New)
-                    mempty
+                    -- (button_newBoard $ routeWith' $ Boards New)
+                    -- mempty
 
                   -- ACCESS: Board
                   -- * Update: can edit board settings
@@ -183,8 +169,8 @@ viewIndex_ !page_info' !organization' !forum' !boards_map' = do
                     boardPackResponsePermissions
                     permCreateEmpty
                     permReadEmpty
-                    (button_editBoard $ routeWith' $ OrganizationsForumsBoards organizationResponseName forumResponseName (EditS boardResponseName))
-                    (button_deleteBoard $ routeWith' $ OrganizationsForumsBoards organizationResponseName forumResponseName (DeleteS boardResponseName))
+                    (button_editBoard $ routeWith' $ Boards (EditS boardResponseName))
+                    (button_deleteBoard $ routeWith' $ Boards (DeleteS boardResponseName))
                     permExecuteEmpty
 
 
@@ -193,43 +179,33 @@ viewIndex_ !page_info' !organization' !forum' !boards_map' = do
 
 viewShowS
   :: PageInfo
-  -> Loader (Maybe OrganizationPackResponse)
-  -> Loader (Maybe ForumPackResponse)
   -> Loader (Maybe BoardPackResponse)
   -> Loader (Map ThreadId ThreadPackResponse)
   -> HTMLView_
 
-viewShowS !page_info' !l_m_organization' !l_m_forum' !l_m_board' !l_threads' = do
-  defineViewWithSKey "boards-show-1" (page_info', l_m_organization', l_m_forum', l_m_board', l_threads') $ \(page_info, l_m_organization, l_m_forum, l_m_board, l_threads) -> do
-    Loader.loader4 l_m_organization l_m_forum l_m_board l_threads $ \m_organization m_forum m_board threads -> do
-      case (m_organization, m_forum, m_board) of
-        (Just organization, Just forum, Just board) ->
+viewShowS !page_info' !l_m_board' !l_threads' = do
+  defineViewWithSKey "boards-show-1" (page_info', l_m_board', l_threads') $ \(page_info, l_m_board, l_threads) -> do
+    Loader.loader2 l_m_board l_threads $ \m_board threads -> do
+      case (m_board) of
+        Just board ->
           viewShowS_
             page_info
-            organization
-            forum
             board
-            (Threads.viewIndex_ page_info organization forum board threads)
+            (Threads.viewIndex_ page_info board threads)
         _ -> Oops.view
 
 
 
 viewShowS_
   :: PageInfo
-  -> OrganizationPackResponse
-  -> ForumPackResponse
   -> BoardPackResponse
   -> HTMLView_ -- ^ plumbing threads
   -> HTMLView_
 
-viewShowS_ !page_info' !organization' !forum' !board' !plumbing_threads' = do
-  defineViewWithSKey "boards-show-2" (page_info', organization', forum', board', plumbing_threads') $ \(page_info, organization, forum, board, plumbing_threads) -> do
+viewShowS_ !page_info' !board' !plumbing_threads' = do
+  defineViewWithSKey "boards-show-2" (page_info', board', plumbing_threads') $ \(page_info, board, plumbing_threads) -> do
 
     let
-      OrganizationPackResponse{..} = organization
-      OrganizationResponse{..}     = organizationPackResponseOrganization
-      ForumPackResponse{..}        = forum
-      ForumResponse{..}            = forumPackResponseForum
       BoardPackResponse{..}        = board
       BoardResponse{..}            = boardPackResponseBoard
 
@@ -247,10 +223,10 @@ viewShowS_ !page_info' !organization' !forum' !board' !plumbing_threads' = do
             --
             permissionsHTML'
               boardPackResponsePermissions
-              (button_newBoard $ routeWith' $ OrganizationsForumsBoards organizationResponseName forumResponseName New)
+              (button_newBoard $ routeWith' $ Boards New)
               permReadEmpty
-              (button_editBoard $ routeWith' $ OrganizationsForumsBoards organizationResponseName forumResponseName (EditS boardResponseName))
-              (button_deleteBoard $ routeWith' $ OrganizationsForumsBoards organizationResponseName forumResponseName (DeleteS boardResponseName))
+              (button_editBoard $ routeWith' $ Boards (EditS boardResponseName))
+              (button_deleteBoard $ routeWith' $ Boards (DeleteS boardResponseName))
               permExecuteEmpty
 
         p_ $ do
@@ -258,10 +234,11 @@ viewShowS_ !page_info' !organization' !forum' !board' !plumbing_threads' = do
             -- ACCESS: Board
             -- * Create: can create threads
             --
-            permissionsMatchCreateHTML
-              boardPackResponseThreadPermissions
-              (button_newThread $ routeWith' $ OrganizationsForumsBoardsThreads organizationResponseName forumResponseName boardResponseName New)
-              mempty
+            -- permissionsMatchCreateHTML
+            --  boardPackResponseThreadPermissions
+            --  (button_newThread $ routeWith' $ BoardsThreads boardResponseName New)
+            --  mempty
+            mempty
 
       div_ plumbing_threads
 
@@ -274,7 +251,9 @@ viewNew
 
 viewNew !l_m_forum !m_request = do
   Loader.maybeLoader1 l_m_forum $ \ForumPackResponse{..} ->
-    ebyam m_request mempty $ \request -> viewMod TyCreate forumPackResponseForumId Nothing request
+    mempty
+    -- TODO FIXME:
+    -- ebyam m_request mempty $ \request -> viewMod TyCreate forumPackResponseForumId Nothing request
 
 
 
@@ -284,19 +263,19 @@ viewEditS
   -> HTMLView_
 viewEditS !l_m_board !m_request =
   Loader.maybeLoader1 l_m_board $ \BoardPackResponse{..} ->
-    ebyam m_request mempty $ \request -> viewMod TyUpdate (boardResponseOrgId boardPackResponseBoard) (Just boardPackResponseBoardId) request
+    mempty
+    -- TODO FIXME:
+    -- ebyam m_request mempty $ \request -> viewMod TyUpdate (boardResponseOrgId boardPackResponseBoard) (Just boardPackResponseBoardId) request
 
 
 
 viewMod
   :: TyCRUD
-  -> OrganizationId
-  -> Maybe ForumId
   -> BoardRequest
   -> HTMLView_
 
-viewMod !tycrud' !organization_id' !m_forum_id' !request' = do
-  defineViewWithSKey "boards-mod" (tycrud', organization_id', m_forum_id', request') $ \(tycrud, organization_id, m_forum_id, request) -> do
+viewMod !tycrud' !request' = do
+  defineViewWithSKey "boards-mod" (tycrud', request') $ \(tycrud, request) -> do
 
     let
       BoardRequest{..} = request
@@ -315,30 +294,23 @@ viewMod !tycrud' !organization_id' !m_forum_id' !request' = do
       mandatoryBooleanYesNoField "Anonymous" boardRequestIsAnonymous False
         (dispatch . Board.setIsAnonymous request)
 
-      mandatoryBooleanYesNoField "Can create sub-boards" boardRequestCanCreateSubBoards True
-        (dispatch . Board.setCanCreateSubBoards request)
+      mandatoryBooleanYesNoField "Can create sub-boards" boardRequestCanCreateBoards True
+        (dispatch . Board.setCanCreateBoards request)
 
       mandatoryBooleanYesNoField "Can create threads" boardRequestCanCreateThreads True
         (dispatch . Board.setCanCreateThreads request)
 
-      suggestedTagsField
-        boardRequestSuggestedTags
-        (maybe "" id boardRequestStateSuggestedTag)
-        (dispatch . Board.setSuggestedTag request)
-        (dispatch $ Board.addSuggestedTag request)
-        (dispatch . Board.deleteSuggestedTag request)
-        (dispatch $ Board.clearSuggestedTags request)
-
-      tagsField
-        boardRequestTags
-        (maybe "" id boardRequestStateTag)
-        (dispatch . Board.setTag request)
-        (dispatch $ Board.addTag request)
-        (dispatch . Board.deleteTag request)
-        (dispatch $ Board.clearTags request)
+      -- TODO FIXME: bring back - keep state local! not in the damn lnforum-type!
+      -- tagsField
+      --   boardRequestTags
+      --   (maybe "" id boardRequestStateTag)
+      --   (dispatch . Board.setTag request)
+      --   (dispatch $ Board.addTag request)
+      --   (dispatch . Board.deleteTag request)
+      --   (dispatch $ Board.clearTags request)
 
       createButtonsCreateEditCancel
-        m_forum_id
+        Nothing -- TODO FIXME
         (dispatch Save)
         (const $ dispatch Save)
         (routeWith' Home)

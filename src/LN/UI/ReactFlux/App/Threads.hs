@@ -45,10 +45,8 @@ import           LN.Sanitize.Internal                  (toSafeUrl)
 import           LN.T.Board
 import           LN.T.Convert
 import           LN.T.Forum
-import           LN.T.Organization
 import           LN.T.Pack.Board
 import           LN.T.Pack.Forum
-import           LN.T.Pack.Organization
 import           LN.T.Pack.Sanitized.User
 import           LN.T.Pack.Thread
 import           LN.T.Pack.ThreadPost
@@ -101,45 +99,37 @@ import           LN.UI.ReactFlux.View.Internal
 
 viewIndex
   :: PageInfo
-  -> Loader (Maybe OrganizationPackResponse)
-  -> Loader (Maybe ForumPackResponse)
   -> Loader (Maybe BoardPackResponse)
   -> Loader (Map ThreadId ThreadPackResponse)
   -> HTMLView_
 
-viewIndex !page_info' !l_m_organization' !l_m_forum' !l_m_board' !l_threads' = do
-  defineViewWithSKey "threads-index-1" (page_info', l_m_organization', l_m_forum', l_m_board', l_threads') go
+viewIndex !page_info' !l_m_board' !l_threads' = do
+  defineViewWithSKey "threads-index-1" (page_info', l_m_board', l_threads') go
   where
-  go (page_info, l_m_organization, l_m_forum, l_m_board, l_threads) = do
+  go (page_info, l_m_board, l_threads) = do
     h1_ [className_ B.textCenter] $ elemText "Threads"
-    Loader.maybeLoader3 l_m_organization l_m_forum l_m_board $ \organization forum board -> do
+    Loader.maybeLoader1 l_m_board $ \board -> do
       Loader.loader1 l_threads $ \threads -> do
-        viewIndex_ page_info organization forum board threads
+        viewIndex_ page_info board threads
 
 
 
 viewIndex_
   :: PageInfo
-  -> OrganizationPackResponse
-  -> ForumPackResponse
   -> BoardPackResponse
   -> Map ThreadId ThreadPackResponse
   -> HTMLView_
 
-viewIndex_ !page_info' !organization' !forum' !board' !threads_map' = do
-  defineViewWithSKey "threads-index-2" (page_info', organization', forum', board', threads_map') go
+viewIndex_ !page_info' !board' !threads_map' = do
+  defineViewWithSKey "threads-index-2" (page_info', board', threads_map') go
   where
-  go (page_info, organization, forum, board, threads_map) = do
+  go (page_info, board, threads_map) = do
 
     let
-      OrganizationPackResponse{..} = organization
-      OrganizationResponse{..}     = organizationPackResponseOrganization
-      ForumPackResponse{..}        = forum
-      ForumResponse{..}            = forumPackResponseForum
       BoardPackResponse{..}        = board
       BoardResponse{..}            = boardPackResponseBoard
 
-    PageNumbers.view1 page_info (routeWith' $ OrganizationsForumsBoards organizationResponseName forumResponseName (ShowS boardResponseName))
+    PageNumbers.view1 page_info (routeWith' $ Boards (ShowS boardResponseName))
     ul_ [className_ B.listUnstyled] $ do
       -- TODO FIXME: This is good actually.. frontend shouldn't show threads with no posts.
       -- We also shouldn't allow threads to be created without posts.. that's another issue
@@ -158,12 +148,12 @@ viewIndex_ !page_info' !organization' !forum' !board' !threads_map' = do
               p_ $ ahref $ routeWith' $ Users (ShowS (userSanitizedResponseName threadPackResponseUser))
               Gravatar.viewUser Small threadPackResponseUser
             cldiv_ B.colXs4 $ do
-              p_ $ ahrefName threadResponseDisplayName $ routeWith' $ OrganizationsForumsBoardsThreads organizationResponseName forumResponseName boardResponseName (ShowS threadResponseName)
+              p_ $ ahrefName threadResponseDisplayName $ routeWith' $ BoardsThreads boardResponseName (ShowS threadResponseName)
               p_ $
                 PageNumbers.viewAbbreviated_
                   ("page-numbers-abbrv-" <> showToJSString' threadResponseId)
                   (defaultPageInfo { totalPages = threadStatResponseThreadPosts })
-                  (routeWith' $ OrganizationsForumsBoardsThreads organizationResponseName forumResponseName boardResponseName (ShowS threadResponseName))
+                  (routeWith' $ BoardsThreads boardResponseName (ShowS threadResponseName))
 
               p_ $ elemText $ prettyUTCTimeMaybe threadResponseCreatedAt
             cldiv_ B.colXs2 $ do
@@ -179,7 +169,7 @@ viewIndex_ !page_info' !organization' !forum' !board' !threads_map' = do
                   div_ $ do
                     p_ $ do
                       elemText "Last "
-                      ahrefName "post" $ routeWith' $ OrganizationsForumsBoardsThreadsPosts organizationResponseName forumResponseName boardResponseName threadResponseName (ShowI threadPostResponseId)
+                      ahrefName "post" $ routeWith' $ BoardsThreadsPosts boardResponseName threadResponseName (ShowI threadPostResponseId)
                       elemText " by "
                       ahref $ routeWith' $ Users (ShowS (userSanitizedResponseName latest_post_user))
                       elemText " "
@@ -196,19 +186,17 @@ viewIndex_ !page_info' !organization' !forum' !board' !threads_map' = do
                     threadPackResponsePermissions
                     permCreateEmpty
                     permReadEmpty
-                    (button_editThread $ routeWith' $ OrganizationsForumsBoardsThreads organizationResponseName forumResponseName boardResponseName (EditS threadResponseName))
-                    (button_deleteThread $ routeWith' $ OrganizationsForumsBoardsThreads organizationResponseName forumResponseName boardResponseName (DeleteS threadResponseName))
+                    (button_editThread $ routeWith' $ BoardsThreads boardResponseName (EditS threadResponseName))
+                    (button_deleteThread $ routeWith' $ BoardsThreads boardResponseName (DeleteS threadResponseName))
                     permExecuteEmpty
 
-    PageNumbers.view2 page_info (routeWith' $ OrganizationsForumsBoards organizationResponseName forumResponseName (ShowS boardResponseName))
+    PageNumbers.view2 page_info (routeWith' $ Boards (ShowS boardResponseName))
 
 
 
 viewShowS
   :: PageInfo
   -> UserId
-  -> Loader (Maybe OrganizationPackResponse)
-  -> Loader (Maybe ForumPackResponse)
   -> Loader (Maybe BoardPackResponse)
   -> Loader (Maybe ThreadPackResponse)
   -> Loader (Map ThreadId ThreadPostPackResponse)
@@ -216,48 +204,40 @@ viewShowS
   -> Map UserId UserSanitizedPackResponse
   -> HTMLView_
 
-viewShowS !page_info' !me_id' !l_m_organization' !l_m_forum' !l_m_board' !l_m_thread' !l_posts' !m_request' !users_map' = do
-  defineViewWithSKey "threads-show-1" (page_info', me_id', l_m_organization', l_m_forum', l_m_board', l_m_thread', l_posts', m_request', users_map') go
+viewShowS !page_info' !me_id' !l_m_board' !l_m_thread' !l_posts' !m_request' !users_map' = do
+  defineViewWithSKey "threads-show-1" (page_info', me_id', l_m_board', l_m_thread', l_posts', m_request', users_map') go
   where
-  go (page_info, me_id, l_m_organization, l_m_forum, l_m_board, l_m_thread, l_posts, m_request, users_map) = do
+  go (page_info, me_id, l_m_board, l_m_thread, l_posts, m_request, users_map) = do
 
-    Loader.loader5 l_m_organization l_m_forum l_m_board l_m_thread l_posts $ \m_organization m_forum m_board m_thread posts -> do
-      case (m_organization, m_forum, m_board, m_thread) of
-        (Just organization, Just forum, Just board, Just thread) ->
+    Loader.loader3 l_m_board l_m_thread l_posts $ \m_board m_thread posts -> do
+      case (m_board, m_thread) of
+        (Just board, Just thread) ->
           viewShowS_
             page_info
-            organization
-            forum
             board
             thread
-            (ThreadPosts.viewIndex_ page_info me_id organization forum board thread posts m_request users_map)
+            (ThreadPosts.viewIndex_ page_info me_id board thread posts m_request users_map)
         _ -> Oops.view
 
 
 
 viewShowS_
   :: PageInfo
-  -> OrganizationPackResponse
-  -> ForumPackResponse
   -> BoardPackResponse
   -> ThreadPackResponse
   -> HTMLView_ -- ^ plumbing thread posts
   -> HTMLView_
 
-viewShowS_ !page_info' !organization' !forum' !board' !thread' !plumbing_posts' = do
+viewShowS_ !page_info' !board' !thread' !plumbing_posts' = do
   defineViewWithSKey
     "threads-show-2"
-    (page_info', organization', forum', board', thread', plumbing_posts')
+    (page_info', board', thread', plumbing_posts')
     go
 
   where
-  go (page_info, organization, forum, board, thread, plumbing_posts) = do
+  go (page_info, board, thread, plumbing_posts) = do
 
     let
-      OrganizationPackResponse{..} = organization
-      OrganizationResponse{..}     = organizationPackResponseOrganization
-      ForumPackResponse{..}        = forum
-      ForumResponse{..}            = forumPackResponseForum
       BoardPackResponse{..}        = board
       BoardResponse{..}            = boardPackResponseBoard
       ThreadPackResponse{..}       = thread

@@ -45,5 +45,4 @@ viewLinks =
   go :: () -> HTMLView_
   go _ = do
     ol_ $ do
-      liKey_ "portal-link-organizations" $ ahref $ routeWith' (Organizations Index)
       liKey_ "portal-link-users"         $ ahref $ routeWith' (Users Index)

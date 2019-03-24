@@ -9,8 +9,6 @@ module LN.UI.ReactFlux.View.Button (
   glyphButton_ThumbsDown,
   glyphButton_Plus,
   glyphButton_Minus,
-  glyphButton_Star,
-  glyphButton_StarEmpty,
   glyphButton_Trash,
   glyphButton_Pencil,
   glyphButton_Ok,
@@ -22,8 +20,6 @@ module LN.UI.ReactFlux.View.Button (
   glyphButtonDef_ThumbsDown,
   glyphButtonDef_Plus,
   glyphButtonDef_Minus,
-  glyphButtonDef_Star,
-  glyphButtonDef_StarEmpty,
   glyphButtonDef_Trash,
   glyphButtonDef_Pencil,
   glyphButtonDef_Ok,
@@ -35,8 +31,6 @@ module LN.UI.ReactFlux.View.Button (
   glyphButtonSm_ThumbsDown,
   glyphButtonSm_Plus,
   glyphButtonSm_Minus,
-  glyphButtonSm_Star,
-  glyphButtonSm_StarEmpty,
   glyphButtonSm_Trash,
   glyphButtonSm_Pencil,
   glyphButtonSm_Ok,
@@ -48,8 +42,6 @@ module LN.UI.ReactFlux.View.Button (
   glyphButtonLg_ThumbsDown,
   glyphButtonLg_Plus,
   glyphButtonLg_Minus,
-  glyphButtonLg_Star,
-  glyphButtonLg_StarEmpty,
   glyphButtonLg_Trash,
   glyphButtonLg_Pencil,
   glyphButtonLg_Ok,
@@ -63,8 +55,6 @@ module LN.UI.ReactFlux.View.Button (
   glyphButtonLink_ThumbsDown,
   glyphButtonLink_Plus,
   glyphButtonLink_Minus,
-  glyphButtonLink_Star,
-  glyphButtonLink_StarEmpty,
   glyphButtonLink_Trash,
   glyphButtonLink_Pencil,
   glyphButtonLink_Ok,
@@ -76,8 +66,6 @@ module LN.UI.ReactFlux.View.Button (
   glyphButtonLinkDef_ThumbsDown,
   glyphButtonLinkDef_Plus,
   glyphButtonLinkDef_Minus,
-  glyphButtonLinkDef_Star,
-  glyphButtonLinkDef_StarEmpty,
   glyphButtonLinkDef_Trash,
   glyphButtonLinkDef_Pencil,
   glyphButtonLinkDef_Ok,
@@ -89,8 +77,6 @@ module LN.UI.ReactFlux.View.Button (
   glyphButtonLinkSm_ThumbsDown,
   glyphButtonLinkSm_Plus,
   glyphButtonLinkSm_Minus,
-  glyphButtonLinkSm_Star,
-  glyphButtonLinkSm_StarEmpty,
   glyphButtonLinkSm_Trash,
   glyphButtonLinkSm_Pencil,
   glyphButtonLinkSm_Ok,
@@ -102,8 +88,6 @@ module LN.UI.ReactFlux.View.Button (
   glyphButtonLinkLg_ThumbsDown,
   glyphButtonLinkLg_Plus,
   glyphButtonLinkLg_Minus,
-  glyphButtonLinkLg_Star,
-  glyphButtonLinkLg_StarEmpty,
   glyphButtonLinkLg_Trash,
   glyphButtonLinkLg_Pencil,
   glyphButtonLinkLg_Ok,
@@ -118,11 +102,6 @@ module LN.UI.ReactFlux.View.Button (
   buttonGroup_Horizontal',
   buttonGroup_Vertical',
 
-  button_newOrganization,
-  button_editOrganization,
-  button_deleteOrganization,
-  button_joinOrganization,
-  button_joinOrganization',
   button_newForum,
   button_editForum,
   button_deleteForum,
@@ -138,13 +117,9 @@ module LN.UI.ReactFlux.View.Button (
   button_like,
   button_neutral,
   button_dislike,
-  button_starEmpty,
-  button_star,
   button_like',
   button_neutral',
   button_dislike',
-  button_starEmpty',
-  button_star',
 
   linkBadge,
 
@@ -215,8 +190,6 @@ glyphButton_ThumbsUp   = glyphButton B.glyphiconThumbsUp []
 glyphButton_ThumbsDown = glyphButton B.glyphiconThumbsDown []
 glyphButton_Plus      = glyphButton B.glyphiconPlus []
 glyphButton_Minus     = glyphButton B.glyphiconMinus []
-glyphButton_Star      = glyphButton B.glyphiconStar []
-glyphButton_StarEmpty = glyphButton B.glyphiconStarEmpty []
 glyphButton_Trash     = glyphButton B.glyphiconTrash []
 glyphButton_Pencil    = glyphButton B.glyphiconPencil []
 glyphButton_Ok        = glyphButton B.glyphiconOk []
@@ -228,8 +201,6 @@ glyphButton_ThumbsUp'   = glyphButton B.glyphiconThumbsUp
 glyphButton_ThumbsDown' = glyphButton B.glyphiconThumbsDown
 glyphButton_Plus'      = glyphButton B.glyphiconPlus
 glyphButton_Minus'     = glyphButton B.glyphiconMinus
-glyphButton_Star'      = glyphButton B.glyphiconStar
-glyphButton_StarEmpty' = glyphButton B.glyphiconStarEmpty
 glyphButton_Trash'     = glyphButton B.glyphiconTrash
 glyphButton_Pencil'    = glyphButton B.glyphiconPencil
 glyphButton_Ok'        = glyphButton B.glyphiconOk
@@ -242,8 +213,6 @@ glyphButtonDef_ThumbsUp   = glyphButtonSm_ThumbsUp
 glyphButtonDef_ThumbsDown = glyphButtonSm_ThumbsDown
 glyphButtonDef_Plus      = glyphButtonSm_Plus
 glyphButtonDef_Minus     = glyphButtonSm_Minus
-glyphButtonDef_Star      = glyphButtonSm_Star
-glyphButtonDef_StarEmpty = glyphButtonSm_StarEmpty
 glyphButtonDef_Trash     = glyphButtonSm_Trash
 glyphButtonDef_Pencil    = glyphButtonSm_Pencil
 glyphButtonDef_Ok        = glyphButtonSm_Ok
@@ -255,8 +224,6 @@ glyphButtonDef_ThumbsUp'   = glyphButtonSm_ThumbsUp'
 glyphButtonDef_ThumbsDown' = glyphButtonSm_ThumbsDown'
 glyphButtonDef_Plus'      = glyphButtonSm_Plus'
 glyphButtonDef_Minus'     = glyphButtonSm_Minus'
-glyphButtonDef_Star'      = glyphButtonSm_Star'
-glyphButtonDef_StarEmpty' = glyphButtonSm_StarEmpty'
 glyphButtonDef_Trash'     = glyphButtonSm_Trash'
 glyphButtonDef_Pencil'    = glyphButtonSm_Pencil'
 glyphButtonDef_Ok'        = glyphButtonSm_Ok'
@@ -269,8 +236,6 @@ glyphButtonSm_ThumbsUp   = glyphButton_ThumbsUp B.btnSm
 glyphButtonSm_ThumbsDown = glyphButton_ThumbsDown B.btnSm
 glyphButtonSm_Plus      = glyphButton_Plus B.btnSm
 glyphButtonSm_Minus     = glyphButton_Minus B.btnSm
-glyphButtonSm_Star      = glyphButton_Star B.btnSm
-glyphButtonSm_StarEmpty = glyphButton_StarEmpty B.btnSm
 glyphButtonSm_Trash     = glyphButton_Trash B.btnSm
 glyphButtonSm_Pencil    = glyphButton_Pencil B.btnSm
 glyphButtonSm_Ok        = glyphButton_Ok B.btnSm
@@ -282,8 +247,6 @@ glyphButtonSm_ThumbsUp'   attr = glyphButton_ThumbsUp' attr B.btnSm
 glyphButtonSm_ThumbsDown' attr = glyphButton_ThumbsDown' attr B.btnSm
 glyphButtonSm_Plus'      attr = glyphButton_Plus' attr B.btnSm
 glyphButtonSm_Minus'     attr = glyphButton_Minus' attr B.btnSm
-glyphButtonSm_Star'      attr = glyphButton_Star' attr B.btnSm
-glyphButtonSm_StarEmpty' attr = glyphButton_StarEmpty' attr B.btnSm
 glyphButtonSm_Trash'     attr = glyphButton_Trash' attr B.btnSm
 glyphButtonSm_Pencil'    attr = glyphButton_Pencil' attr B.btnSm
 glyphButtonSm_Ok'        attr = glyphButton_Ok' attr B.btnSm
@@ -296,8 +259,6 @@ glyphButtonLg_ThumbsUp   = glyphButton_ThumbsUp B.btnLg
 glyphButtonLg_ThumbsDown = glyphButton_ThumbsDown B.btnLg
 glyphButtonLg_Plus      = glyphButton_Plus B.btnLg
 glyphButtonLg_Minus     = glyphButton_Minus B.btnLg
-glyphButtonLg_Star      = glyphButton_Star B.btnLg
-glyphButtonLg_StarEmpty = glyphButton_StarEmpty B.btnLg
 glyphButtonLg_Trash     = glyphButton_Trash B.btnLg
 glyphButtonLg_Pencil    = glyphButton_Pencil B.btnLg
 glyphButtonLg_Ok        = glyphButton_Ok B.btnLg
@@ -317,8 +278,6 @@ glyphButtonLink_ThumbsUp   = glyphButtonLink B.glyphiconThumbsUp
 glyphButtonLink_ThumbsDown = glyphButtonLink B.glyphiconThumbsDown
 glyphButtonLink_Plus      = glyphButtonLink B.glyphiconPlus
 glyphButtonLink_Minus     = glyphButtonLink B.glyphiconMinus
-glyphButtonLink_Star      = glyphButtonLink B.glyphiconStar
-glyphButtonLink_StarEmpty = glyphButtonLink B.glyphiconStarEmpty
 glyphButtonLink_Trash     = glyphButtonLink B.glyphiconTrash
 glyphButtonLink_Pencil    = glyphButtonLink B.glyphiconPencil
 glyphButtonLink_Ok        = glyphButtonLink B.glyphiconOk
@@ -332,8 +291,6 @@ glyphButtonLinkDef_ThumbsUp   = glyphButtonLinkSm_ThumbsUp
 glyphButtonLinkDef_ThumbsDown = glyphButtonLinkSm_ThumbsDown
 glyphButtonLinkDef_Plus      = glyphButtonLinkSm_Plus
 glyphButtonLinkDef_Minus     = glyphButtonLinkSm_Minus
-glyphButtonLinkDef_Star      = glyphButtonLinkSm_Star
-glyphButtonLinkDef_StarEmpty = glyphButtonLinkSm_StarEmpty
 glyphButtonLinkDef_Trash     = glyphButtonLinkSm_Trash
 glyphButtonLinkDef_Pencil    = glyphButtonLinkSm_Pencil
 glyphButtonLinkDef_Ok        = glyphButtonLinkSm_Ok
@@ -347,8 +304,6 @@ glyphButtonLinkSm_ThumbsUp   = glyphButtonLink_ThumbsUp B.btnSm
 glyphButtonLinkSm_ThumbsDown = glyphButtonLink_ThumbsDown B.btnSm
 glyphButtonLinkSm_Plus      = glyphButtonLink_Plus B.btnSm
 glyphButtonLinkSm_Minus     = glyphButtonLink_Minus B.btnSm
-glyphButtonLinkSm_Star      = glyphButtonLink_Star B.btnSm
-glyphButtonLinkSm_StarEmpty = glyphButtonLink_StarEmpty B.btnSm
 glyphButtonLinkSm_Trash     = glyphButtonLink_Trash B.btnSm
 glyphButtonLinkSm_Pencil    = glyphButtonLink_Pencil B.btnSm
 glyphButtonLinkSm_Ok        = glyphButtonLink_Ok B.btnSm
@@ -362,8 +317,6 @@ glyphButtonLinkLg_ThumbsUp   = glyphButtonLink_ThumbsUp B.btnLg
 glyphButtonLinkLg_ThumbsDown = glyphButtonLink_ThumbsDown B.btnLg
 glyphButtonLinkLg_Plus      = glyphButtonLink_Plus B.btnLg
 glyphButtonLinkLg_Minus     = glyphButtonLink_Minus B.btnLg
-glyphButtonLinkLg_Star      = glyphButtonLink_Star B.btnLg
-glyphButtonLinkLg_StarEmpty = glyphButtonLink_StarEmpty B.btnLg
 glyphButtonLinkLg_Trash     = glyphButtonLink_Trash B.btnLg
 glyphButtonLinkLg_Pencil    = glyphButtonLink_Pencil B.btnLg
 glyphButtonLinkLg_Ok        = glyphButtonLink_Ok B.btnLg
@@ -393,14 +346,6 @@ buttonGroup_Vertical' sz xs =
 
 
 
-button_newOrganization     = glyphButtonLinkDef_Plus (Just " new-organization")
-button_editOrganization    = glyphButtonLinkDef_Pencil Nothing
-button_editOrganization'   = glyphButtonLinkDef_Pencil (Just "edit organization")
-button_deleteOrganization  = glyphButtonLinkDef_Trash Nothing
-button_deleteOrganization' = glyphButtonLinkDef_Trash (Just "delete organization")
-button_joinOrganization    = glyphButtonLinkDef_Ok (Just " join-organization")
-button_joinOrganization' handler = glyphButtonDef_Ok Nothing handler
-
 button_newForum     = glyphButtonLinkDef_Plus (Just " new-forum")
 button_editForum    = glyphButtonLinkDef_Pencil Nothing
 button_editForum'   = glyphButtonLinkDef_Pencil (Just "edit forum")
@@ -429,16 +374,9 @@ button_like handler    = glyphButtonDef_ArrowUp Nothing handler
 button_neutral handler = glyphButtonDef_Minus Nothing handler
 button_dislike handler = glyphButtonDef_ArrowDown Nothing handler
 
-button_starEmpty handler = glyphButtonDef_StarEmpty Nothing handler
-button_star handler      = glyphButtonDef_Star Nothing handler
-
 button_like' attr handler    = glyphButtonDef_ArrowUp' attr Nothing handler
 button_neutral' attr handler = glyphButtonDef_Minus' attr Nothing handler
 button_dislike' attr handler = glyphButtonDef_ArrowDown' attr Nothing handler
-
-button_starEmpty' attr handler = glyphButtonDef_StarEmpty' attr Nothing handler
-button_star' attr handler      = glyphButtonDef_Star' attr Nothing handler
-
 
 linkBadge :: Text -> JSString -> RouteWith -> HTMLView_
 linkBadge text badge route_with =

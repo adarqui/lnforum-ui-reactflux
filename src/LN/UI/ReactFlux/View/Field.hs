@@ -8,7 +8,6 @@ module LN.UI.ReactFlux.View.Field (
   optionalLabelField,
   optionalDescriptionField,
   mandatoryDescriptionField,
-  mandatoryMembershipField,
   mandatoryVisibilityField,
   mandatoryGenderField,
   tagsField,
@@ -27,7 +26,6 @@ import qualified React.Flux                           as RF
 import           React.Flux.Internal
 import qualified Web.Bootstrap3                       as B
 
-import           LN.T.Membership                      (Membership (..))
 import           LN.T.Profile                         (ProfileGender (..))
 import           LN.T.Visibility                      (Visibility (..))
 import           LN.UI.Core.Helpers.GHCJS             (JSString,
@@ -77,16 +75,6 @@ mandatoryDescriptionField value set_description_handler remove_description_handl
     (onChange (set_description_handler . targetValue))
     (onClick $ const . const remove_description_handler)
 
-
-
-mandatoryMembershipField :: Membership -> (Membership -> ViewEventHandler) -> HTMLView_
-mandatoryMembershipField value membership_handler =
-  createRadioMenu
-    "Membership"
-    "membership"
-    [Membership_InviteOnly, Membership_RequestInvite, Membership_Join, Membership_Locked]
-    value
-    membership_handler
 
 
 

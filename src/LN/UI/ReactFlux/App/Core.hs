@@ -55,7 +55,6 @@ import qualified LN.UI.ReactFlux.App.Home             as Home
 import qualified LN.UI.ReactFlux.App.Layout           as Layout
 import qualified LN.UI.ReactFlux.App.NavBar           as NavBar
 import qualified LN.UI.ReactFlux.App.NotFound         as NotFound
-import qualified LN.UI.ReactFlux.App.Organizations    as Organizations
 import qualified LN.UI.ReactFlux.App.Portal           as Portal
 import qualified LN.UI.ReactFlux.App.Profile          as Profile
 import qualified LN.UI.ReactFlux.App.ThreadPosts      as ThreadPosts
@@ -106,32 +105,22 @@ renderRouteView !store' = do
       RouteWith About _                       -> About.view
       RouteWith Portal _                      -> Portal.view
 
-      RouteWith (Organizations Index) _       -> Organizations.viewIndex _pageInfo _l_organizations
-      RouteWith (Organizations New) _         -> Organizations.viewNew _m_organizationRequest
-      RouteWith (Organizations (EditS _)) _   -> Organizations.viewEditS _m_organizationRequest _l_m_organization
-      RouteWith (Organizations (ShowS _)) _   -> Organizations.viewShowS _pageInfo _l_m_organization _l_forums
+      RouteWith (Boards Index) _     -> Boards.viewIndex _pageInfo  _l_boards
+      RouteWith (Boards New) _       -> Boards.viewNew _l_m_forum _m_boardRequest
+      RouteWith (Boards (EditS _)) _ -> Boards.viewEditS _l_m_board _m_boardRequest
+      RouteWith (Boards (ShowS _)) _ -> Boards.viewShowS _pageInfo  _l_m_board _l_threads
 
-      RouteWith (OrganizationsForums _ Index) _     -> Forums.viewIndex _pageInfo _l_m_organization _l_forums
-      RouteWith (OrganizationsForums _ New) _       -> Forums.viewNew _l_m_organization _m_forumRequest
-      RouteWith (OrganizationsForums _ (EditS _)) _ -> Forums.viewEditS _l_m_forum _m_forumRequest
-      RouteWith (OrganizationsForums _ (ShowS _)) _ -> Forums.viewShowS _pageInfo _l_m_organization _l_m_forum _l_boards _l_recentThreadPosts
+      RouteWith (BoardsThreads _ Index) _     -> Threads.viewIndex _pageInfo  _l_m_board _l_threads
+      RouteWith (BoardsThreads _ New) _       -> Threads.viewNew _l_m_board _m_threadRequest
+      RouteWith (BoardsThreads _ (EditS _)) _ -> Threads.viewEditS _l_m_thread _m_threadRequest
+      RouteWith (BoardsThreads _ (ShowS _)) _ -> Threads.viewShowS _pageInfo _meId  _l_m_board _l_m_thread _l_threadPosts _m_threadPostRequest _usersCache
 
-      RouteWith (OrganizationsForumsBoards _ _ Index) _     -> Boards.viewIndex _pageInfo _l_m_organization _l_m_forum _l_boards
-      RouteWith (OrganizationsForumsBoards _ _ New) _       -> Boards.viewNew _l_m_forum _m_boardRequest
-      RouteWith (OrganizationsForumsBoards _ _ (EditS _)) _ -> Boards.viewEditS _l_m_board _m_boardRequest
-      RouteWith (OrganizationsForumsBoards _ _ (ShowS _)) _ -> Boards.viewShowS _pageInfo _l_m_organization _l_m_forum _l_m_board _l_threads
-
-      RouteWith (OrganizationsForumsBoardsThreads _ _ _ Index) _     -> Threads.viewIndex _pageInfo _l_m_organization _l_m_forum _l_m_board _l_threads
-      RouteWith (OrganizationsForumsBoardsThreads _ _ _ New) _       -> Threads.viewNew _l_m_board _m_threadRequest
-      RouteWith (OrganizationsForumsBoardsThreads _ _ _ (EditS _)) _ -> Threads.viewEditS _l_m_thread _m_threadRequest
-      RouteWith (OrganizationsForumsBoardsThreads _ _ _ (ShowS _)) _ -> Threads.viewShowS _pageInfo _meId _l_m_organization _l_m_forum _l_m_board _l_m_thread _l_threadPosts _m_threadPostRequest _usersCache
-
-      RouteWith (OrganizationsForumsBoardsThreadsPosts _ _ _ _ Index) _     -> ThreadPosts.viewIndex _pageInfo _meId _l_m_organization _l_m_forum _l_m_board _l_m_thread _l_threadPosts _m_threadPostRequest _usersCache
-      RouteWith (OrganizationsForumsBoardsThreadsPosts _ _ _ _ New) _       -> ThreadPosts.viewNew _l_m_thread _m_threadPostRequest
-      RouteWith (OrganizationsForumsBoardsThreadsPosts _ _ _ _ (EditI _)) _ -> ThreadPosts.viewEditI _l_m_threadPost _m_threadPostRequest
-      RouteWith (OrganizationsForumsBoardsThreadsPosts _ _ _ _ (ShowI _)) _ -> Threads.viewShowS _pageInfo _meId _l_m_organization _l_m_forum _l_m_board _l_m_thread _l_threadPosts _m_threadPostRequest _usersCache
---      RouteWith (OrganizationsForumsBoardsThreadsPosts _ _ _ _ (ShowI _)) _ -> ThreadPosts.viewIndex _pageInfo _meId _l_m_organization _l_m_forum _l_m_board _l_m_thread _l_threadPosts _m_threadPostRequest _usersCache
---      RouteWith (OrganizationsForumsBoardsThreadsPosts _ _ _ _ (ShowI _)) _ -> ThreadPosts.viewShowI _pageInfo _meId _l_m_organization _l_m_forum _l_m_board _l_m_thread _l_m_threadPost _usersCache
+      RouteWith (BoardsThreadsPosts _ _ Index) _     -> ThreadPosts.viewIndex _pageInfo _meId  _l_m_board _l_m_thread _l_threadPosts _m_threadPostRequest _usersCache
+      RouteWith (BoardsThreadsPosts _ _ New) _       -> ThreadPosts.viewNew _l_m_thread _m_threadPostRequest
+      RouteWith (BoardsThreadsPosts _ _ (EditI _)) _ -> ThreadPosts.viewEditI _l_m_threadPost _m_threadPostRequest
+      RouteWith (BoardsThreadsPosts _ _ (ShowI _)) _ -> Threads.viewShowS _pageInfo _meId  _l_m_board _l_m_thread _l_threadPosts _m_threadPostRequest _usersCache
+--      RouteWith (BoardsThreadsPosts _ _ _ _ (ShowI _)) _ -> ThreadPosts.viewIndex _pageInfo _meId  _l_m_board _l_m_thread _l_threadPosts _m_threadPostRequest _usersCache
+--      RouteWith (BoardsThreadsPosts _ _ _ _ (ShowI _)) _ -> ThreadPosts.viewShowI _pageInfo _meId  _l_m_board _l_m_thread _l_m_threadPost _usersCache
 --
 --
 

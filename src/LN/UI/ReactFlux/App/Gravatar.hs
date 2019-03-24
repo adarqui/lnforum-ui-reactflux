@@ -7,7 +7,6 @@
 module LN.UI.ReactFlux.App.Gravatar (
   view,
   viewUser,
-  viewOrganization,
   gravatarSize,
   gravatarSizeParam
 ) where
@@ -20,7 +19,6 @@ import qualified Data.Text                             as Text (unpack)
 import           React.Flux                            hiding (view)
 import qualified React.Flux                            as RF
 
-import           LN.T.Organization                     (OrganizationResponse (..))
 import           LN.T.Size                             (Size (..))
 import           LN.T.User                             (UserSanitizedResponse (..))
 import           LN.UI.Core.Helpers.DataText           (tshow)
@@ -51,12 +49,6 @@ view !route_with' !size' !emailMD5' !alt' =
 viewUser :: Size -> UserSanitizedResponse -> HTMLView_
 viewUser size UserSanitizedResponse{..} =
   view (routeWith' $ Users (ShowS userSanitizedResponseName)) size userSanitizedResponseEmailMD5 userSanitizedResponseName
-
-
-
-viewOrganization :: Size -> OrganizationResponse -> HTMLView_
-viewOrganization size OrganizationResponse{..} =
-  view (routeWith' $ Organizations (ShowS organizationResponseName)) size organizationResponseEmailMD5 organizationResponseName
 
 
 

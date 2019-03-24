@@ -10,8 +10,8 @@
 module LN.UI.ReactFlux.App.Forums (
   viewIndex,
   viewIndex_,
-  viewNew,
-  viewEditS,
+  -- viewNew,
+  -- viewEditS,
   viewShowS,
   viewMessagesOfTheWeek_,
   viewRecentPosts_
@@ -40,15 +40,12 @@ import qualified Web.Bootstrap3                        as B
 
 import           LN.Api
 import qualified LN.Api.String                         as ApiS
-import           LN.Generate.Default                   (defaultForumRequest)
 import           LN.Sanitize.Internal                  (toSafeUrl)
 import           LN.T.Board
 import           LN.T.Convert                          (forumResponseToForumRequest)
 import           LN.T.Forum
-import           LN.T.Organization
 import           LN.T.Pack.Board
 import           LN.T.Pack.Forum
-import           LN.T.Pack.Organization
 import           LN.T.Pack.ThreadPost
 import           LN.T.Param
 import           LN.T.Size
@@ -98,134 +95,79 @@ import           LN.UI.ReactFlux.View.Internal
 
 viewIndex
   :: PageInfo
-  -> Loader (Maybe OrganizationPackResponse)
-  -> Loader (Map ForumId ForumPackResponse)
   -> HTMLView_
 
-viewIndex !page_info' l_m_organization' l_forums' = do
-  defineViewWithSKey "forums-index-1" (page_info', l_m_organization', l_forums') go
+viewIndex !page_info = do
+  defineViewWithSKey "forums-index-1" (page_info) go
 
   where
-  go (page_info, l_m_organization, l_forums) = do
+  go (page_info') = do
     h1_ [className_ B.textCenter] $ elemText "Forums"
-    Loading.loader2 l_m_organization l_forums $ \m_organization forums -> do
-      case m_organization of
-        Nothing           -> mempty
-        Just organization -> viewIndex_ page_info organization forums
+    viewIndex_ page_info'
 
 
 
 viewIndex_
   :: PageInfo
-  -> OrganizationPackResponse
-  -> Map Int64 ForumPackResponse
   -> HTMLView_
 
-viewIndex_ !page_info' !organization' !forums_map' = do
-  defineViewWithSKey "forums-index-2" (page_info', organization', forums_map') go
+viewIndex_ !page_info' = do
+  defineViewWithSKey "forums-index-2" (page_info') go
 
   where
-  go (page_info, organization, forums_map) = do
+  go (page_info) = do
 
     let
-      OrganizationPackResponse{..} = organization
-      OrganizationResponse{..}     = organizationPackResponseOrganization
-
-    -- ACCESS: Organization
-    -- * Create: can create forums
-    --
-    permissionsMatchCreateHTML
-      organizationPackResponsePermissions
-      (button_newForum $ routeWith' $ OrganizationsForums organizationResponseName New)
-      mempty
 
     cldiv_ B.listUnstyled $
-      forM_ (Map.elems forums_map) $ \ForumPackResponse{..} -> do
-        let
-          ForumResponse{..}     = forumPackResponseForum
-          ForumStatResponse{..} = forumPackResponseStat
-        li_ $ do
-          cldiv_ B.row $ do
-            cldiv_ B.colXs1 $ p_ $ elemText "icon"
-          cldiv_ B.colXs6 $ do
-              p_ $ ahrefName forumResponseDisplayName $ routeWith' $ OrganizationsForums organizationResponseName (ShowS forumResponseName)
-              p_ $ elemText $ maybe "No description." id forumResponseDescription
-              showTagsSmall forumResponseTags
-          cldiv_ B.colXs2 $ do
-            showTableClean
-              []
-              ["boards", "threads", "posts", "views"]
-              [[forumStatResponseBoards]
-              ,[forumStatResponseThreads]
-              ,[forumStatResponseThreadPosts]
-              ,[forumStatResponseViews]
-              ]
-          cldiv_ B.colXs2 $ p_ $ elemText "created-at"
-          cldiv_ B.colXs1 $ do
-
-            -- ACCESS: Forum
-            -- * Update: can edit forum settings
-            -- * Delete: can delete a forum
-            --
-            permissionsHTML'
-              forumPackResponsePermissions
-              permCreateEmpty
-              permReadEmpty
-              (button_editForum $ routeWith' $ OrganizationsForums organizationResponseName (EditS forumResponseName))
-              (button_deleteForum $ routeWith' $ OrganizationsForums organizationResponseName (DeleteS forumResponseName))
-              permExecuteEmpty
+      mempty
 
 
 
 
 viewShowS
   :: PageInfo
-  -> Loader (Maybe OrganizationPackResponse)
   -> Loader (Maybe ForumPackResponse)
   -> Loader (Map BoardId BoardPackResponse)
   -> Loader (Map ThreadPostId ThreadPostPackResponse)
   -> HTMLView_
 
-viewShowS !page_info' !l_m_organization' !l_m_forum' !l_boards' !l_recent_posts' = do
-  defineViewWithSKey "forums-show-1" (page_info', l_m_organization', l_m_forum', l_boards', l_recent_posts') go
+viewShowS !page_info' !l_m_forum' !l_boards' !l_recent_posts' = do
+  defineViewWithSKey "forums-show-1" (page_info', l_m_forum', l_boards', l_recent_posts') go
 
   where
-  go (page_info, l_m_organization, l_m_forum, l_boards, l_recent_posts) = do
-    Loading.loader4 l_m_organization l_m_forum l_boards l_recent_posts $ \m_organization m_forum boards recent_posts -> do
-      case (m_organization, m_forum) of
-        (Just organization, Just forum) ->
+  go (page_info, l_m_forum, l_boards, l_recent_posts) = do
+    Loading.loader3 l_m_forum l_boards l_recent_posts $ \m_forum boards recent_posts -> do
+      case m_forum of
+        Just forum ->
           viewShowS_
             page_info
-            organization
             forum
-            (Boards.viewIndex_ page_info organization forum boards)
-            (viewRecentPosts_ organization forum recent_posts)
-            (viewMessagesOfTheWeek_ organization forum)
+            (Boards.viewIndex_ page_info boards)
+            (viewRecentPosts_ recent_posts)
+            (viewMessagesOfTheWeek_)
         _ -> Oops.view
 
 
 
 viewShowS_
   :: PageInfo
-  -> OrganizationPackResponse
   -> ForumPackResponse
   -> HTMLView_ -- ^ plumbing boards
   -> HTMLView_ -- ^ plumbing recent posts
   -> HTMLView_ -- ^ plumbing messages of the week
   -> HTMLView_
 
-viewShowS_ !page_info' !organization' !forum' plumbing_boards' !plumbing_recent_posts' !plumbing_messages_of_the_week' = do
+viewShowS_ !page_info' !forum' plumbing_boards' !plumbing_recent_posts' !plumbing_messages_of_the_week' = do
   defineViewWithSKey
     "forums-show-2"
-    (page_info', organization', forum', plumbing_boards', plumbing_recent_posts', plumbing_messages_of_the_week')
+    (page_info', forum', plumbing_boards', plumbing_recent_posts', plumbing_messages_of_the_week')
     go
 
   where
-  go (page_info, organization, forum, plumbing_boards, plumbing_recent_posts, plumbing_messages_of_the_week) = do
+  go (page_info, forum, plumbing_boards, plumbing_recent_posts, plumbing_messages_of_the_week) = do
 
     let
-      OrganizationPackResponse{..} = organization
-      OrganizationResponse{..}     = organizationPackResponseOrganization
       ForumPackResponse{..}        = forum
       ForumResponse{..}            = forumPackResponseForum
 
@@ -242,10 +184,10 @@ viewShowS_ !page_info' !organization' !forum' plumbing_boards' !plumbing_recent_
         buttonGroup_HorizontalSm1 $ do
           permissionsHTML'
             forumPackResponsePermissions
-            (button_newBoard $ routeWith' $ OrganizationsForumsBoards organizationResponseName forumResponseName New)
+            (button_newBoard $ routeWith' $ Boards New)
             permReadEmpty
-            (button_editForum $ routeWith' $ OrganizationsForums organizationResponseName (EditS forumResponseName))
-            (button_deleteForum $ routeWith' $ OrganizationsForums organizationResponseName (DeleteS forumResponseName))
+            (button_editForum $ routeWith' $ Forums (EditS forumResponseName))
+            (button_deleteForum $ routeWith' $ Forums (DeleteS forumResponseName))
             permExecuteEmpty
 
         div_ plumbing_boards
@@ -265,41 +207,39 @@ viewShowS_ !page_info' !organization' !forum' plumbing_boards' !plumbing_recent_
 
 
 
-viewNew
-  :: Loader (Maybe OrganizationPackResponse)
-  -> Maybe ForumRequest
-  -> HTMLView_
+-- viewNew
+--   -> Maybe ForumRequest
+--   -> HTMLView_
 
-viewNew !l_m_organization !m_request = do
-  Loading.maybeLoader1 l_m_organization $ \OrganizationPackResponse{..} ->
-    ebyam m_request mempty $ \request -> viewMod TyCreate organizationPackResponseOrganizationId Nothing request
-
+-- viewNew !m_request = do
+--   Loading.maybeLoader1 $ \OrganizationPackResponse{..} ->
+--     ebyam m_request mempty $ \request -> viewMod TyCreate organizationPackResponseOrganizationId Nothing request
 
 
-viewEditS
-  :: Loader (Maybe ForumPackResponse)
-  -> Maybe ForumRequest
-  -> HTMLView_
 
-viewEditS !l_m_forum !m_request =
-  Loading.maybeLoader1 l_m_forum $ \ForumPackResponse{..} ->
-    ebyam m_request mempty $ \request -> viewMod TyUpdate (forumResponseOrgId forumPackResponseForum) (Just forumPackResponseForumId) request
+-- viewEditS
+--   :: Loader (Maybe ForumPackResponse)
+--   -> Maybe ForumRequest
+--   -> HTMLView_
+
+-- viewEditS !l_m_forum !m_request =
+--   Loading.maybeLoader1 l_m_forum $ \ForumPackResponse{..} ->
+--     ebyam m_request mempty $ \request -> viewMod TyUpdate (forumResponseOrgId forumPackResponseForum) (Just forumPackResponseForumId) request
 
 
 
 viewMod
   :: TyCRUD
-  -> OrganizationId
   -> Maybe ForumId
   -> ForumRequest
   -> HTMLView_
 
-viewMod !tycrud' !organization_id' !m_forum_id' !request' = do
-  defineViewWithSKey "forums-mod" (tycrud', organization_id', m_forum_id', request') go
+viewMod !tycrud' !m_forum_id' !request' = do
+  defineViewWithSKey "forums-mod" (tycrud', m_forum_id', request') go
 
   where
-  go :: (TyCRUD, OrganizationId, Maybe ForumId, ForumRequest) -> HTMLView_
-  go (tycrud, organization_id, m_forum_id, request) = do
+  go :: (TyCRUD, Maybe ForumId, ForumRequest) -> HTMLView_
+  go (tycrud, m_forum_id, request) = do
 
     let
       ForumRequest{..} = request
@@ -353,15 +293,12 @@ viewMod !tycrud' !organization_id' !m_forum_id' !request' = do
 -- Re: ADARQ's Journal by adarqui (Progress Journals & Experimental Routines) Today at 06:00:30 pm
 --
 viewMessagesOfTheWeek_
-  :: OrganizationPackResponse
-  -> ForumPackResponse
-  -> HTMLView_
+  :: HTMLView_
 
-viewMessagesOfTheWeek_ !organization' !forum' = do
-  defineViewWithSKey "forums-messages-of-the-week" (organization', forum') go
-
+viewMessagesOfTheWeek_ = do
+  defineViewWithSKey "forums-messages-of-the-week" (True) go
   where
-  go (organization, forum) = do
+  go _ = do
     cldiv_ B.containerFluid $ do
       cldiv_ B.pageHeader $ do
         h4_ $ elemText "Messages of the week"
@@ -372,22 +309,14 @@ viewMessagesOfTheWeek_ !organization' !forum' = do
 -- Re: ADARQ's Journal by adarqui (Progress Journals & Experimental Routines) Today at 06:00:30 pm
 --
 viewRecentPosts_
-  :: OrganizationPackResponse
-  -> ForumPackResponse
-  -> Map ThreadPostId ThreadPostPackResponse
+  :: Map ThreadPostId ThreadPostPackResponse
   -> HTMLView_
 
-viewRecentPosts_ !organization' !forum' !posts_map' = do
-  defineViewWithSKey "forums-recent-posts" (organization', forum', posts_map') go
+viewRecentPosts_ !posts_map' = do
+  defineViewWithSKey "forums-recent-posts" (posts_map') go
 
   where
-  go (organization, forum, posts_map) = do
-
-    let
-      OrganizationPackResponse{..} = organization
-      OrganizationResponse{..}     = organizationPackResponseOrganization
-      ForumPackResponse{..}        = forum
-      ForumResponse{..}            = forumPackResponseForum
+  go (posts_map) = do
 
     cldiv_ B.containerFluid $ do
       cldiv_ B.pageHeader $ h4_ $ elemText "Recent posts"
@@ -404,10 +333,10 @@ viewRecentPosts_ !organization' !forum' !posts_map' = do
             p_ $ do
               Gravatar.viewUser XSmall threadPostPackResponseUser
               elemText " "
-              ahrefName (thread_name <> "/" <> tshow threadPostResponseId) $ routeWith' (OrganizationsForumsBoardsThreadsPosts organizationResponseName forumResponseName board_name thread_name (ShowI threadPostResponseId))
+              ahrefName (thread_name <> "/" <> tshow threadPostResponseId) $ routeWith' (BoardsThreadsPosts board_name thread_name (ShowI threadPostResponseId))
               elemText " by "
               ahref $ routeWith' (Users (ShowS userSanitizedResponseName))
               elemText " ("
-              ahrefName board_name $ routeWith' (OrganizationsForumsBoards organizationResponseName forumResponseName (ShowS board_name))
+              ahrefName board_name $ routeWith' (Boards (ShowS board_name))
               elemText ") at "
               elemText $ prettyUTCTimeMaybe threadPostResponseCreatedAt

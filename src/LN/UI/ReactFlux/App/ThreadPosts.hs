@@ -48,10 +48,8 @@ import           LN.T.Board
 import           LN.T.Convert
 import           LN.T.Ent
 import           LN.T.Forum
-import           LN.T.Organization
 import           LN.T.Pack.Board
 import           LN.T.Pack.Forum
-import           LN.T.Pack.Organization
 import           LN.T.Pack.Sanitized.User
 import           LN.T.Pack.Thread
 import           LN.T.Pack.ThreadPost
@@ -91,7 +89,6 @@ import qualified LN.UI.ReactFlux.App.NotFound          as NotFound
 import qualified LN.UI.ReactFlux.App.Oops              as Oops
 import           LN.UI.ReactFlux.App.PageNumbers       (runPageInfo)
 import qualified LN.UI.ReactFlux.App.PageNumbers       as PageNumbers
-import qualified LN.UI.ReactFlux.App.Star              as Star
 import           LN.UI.ReactFlux.Helpers.ReactFluxDOM  (ahref, ahrefClasses,
                                                         ahrefClassesName,
                                                         ahrefName, className_,
@@ -109,8 +106,6 @@ import qualified Web.Bootstrap3                        as B
 viewIndex
   :: PageInfo
   -> UserId
-  -> Loader (Maybe OrganizationPackResponse)
-  -> Loader (Maybe ForumPackResponse)
   -> Loader (Maybe BoardPackResponse)
   -> Loader (Maybe ThreadPackResponse)
   -> Loader (Map ThreadPostId ThreadPostPackResponse)
@@ -118,21 +113,19 @@ viewIndex
   -> Map UserId UserSanitizedPackResponse
   -> HTMLView_
 
-viewIndex !page_info' !me_id' !l_m_organization' !l_m_forum' !l_m_board' !l_m_thread' !l_posts' !m_request' !users_map' = do
-  defineViewWithSKey "posts-index-1" (page_info', me_id', l_m_organization', l_m_forum', l_m_board', l_m_thread', l_posts', m_request', users_map') $ \(page_info, me_id, l_m_organization, l_m_forum, l_m_board, l_m_thread, l_posts, m_request, users_map) -> do
+viewIndex !page_info' !me_id' !l_m_board' !l_m_thread' !l_posts' !m_request' !users_map' = do
+  defineViewWithSKey "posts-index-1" (page_info', me_id', l_m_board', l_m_thread', l_posts', m_request', users_map') $ \(page_info, me_id, l_m_board, l_m_thread, l_posts, m_request, users_map) -> do
 
     h1_ [className_ B.textCenter] $ elemText "Posts"
-    Loader.maybeLoader4 l_m_organization l_m_forum l_m_board l_m_thread $ \organization forum board thread -> do
+    Loader.maybeLoader2 l_m_board l_m_thread $ \board thread -> do
       Loader.loader1 l_posts $ \posts -> do
-        viewIndex_ page_info me_id organization forum board thread posts m_request users_map
+        viewIndex_ page_info me_id board thread posts m_request users_map
 
 
 
 viewIndex_
   :: PageInfo
   -> UserId
-  -> OrganizationPackResponse
-  -> ForumPackResponse
   -> BoardPackResponse
   -> ThreadPackResponse
   -> Map ThreadPostId ThreadPostPackResponse
@@ -140,13 +133,11 @@ viewIndex_
   -> Map UserId UserSanitizedPackResponse
   -> HTMLView_
 
-viewIndex_ !page_info !me_id !organization !forum !board !thread !posts !m_request !users_map = do
+viewIndex_ !page_info !me_id !board !thread !posts !m_request !users_map = do
 
   viewShared
     page_info
     me_id
-    organization
-    forum
     board
     thread
     posts
@@ -158,21 +149,17 @@ viewIndex_ !page_info !me_id !organization !forum !board !thread !posts !m_reque
 viewShowI
   :: PageInfo
   -> UserId
-  -> Loader (Maybe OrganizationPackResponse)
-  -> Loader (Maybe ForumPackResponse)
   -> Loader (Maybe BoardPackResponse)
   -> Loader (Maybe ThreadPackResponse)
   -> Loader (Maybe ThreadPostPackResponse)
   -> Map UserId UserSanitizedPackResponse
   -> HTMLView_
 
-viewShowI !page_info !me_id !l_m_organization !l_m_forum !l_m_board !l_m_thread !l_m_post !users_map = do
-  Loader.maybeLoader5 l_m_organization l_m_forum l_m_board l_m_thread l_m_post $ \organization forum board thread post -> do
+viewShowI !page_info !me_id !l_m_board !l_m_thread !l_m_post !users_map = do
+  Loader.maybeLoader3 l_m_board l_m_thread l_m_post $ \board thread post -> do
     viewShowI_
       page_info
       me_id
-      organization
-      forum
       board
       thread
       post
@@ -183,39 +170,31 @@ viewShowI !page_info !me_id !l_m_organization !l_m_forum !l_m_board !l_m_thread 
 viewShowI_
   :: PageInfo
   -> UserId
-  -> OrganizationPackResponse
-  -> ForumPackResponse
   -> BoardPackResponse
   -> ThreadPackResponse
   -> ThreadPostPackResponse
   -> Map UserId UserSanitizedPackResponse
   -> HTMLView_
 
-viewShowI_ !page_info !me_id !organization !forum !board !thread !post !users_map = do
+viewShowI_ !page_info !me_id !board !thread !post !users_map = do
   case Map.lookup (userSanitizedResponseId $ threadPostPackResponseUser post) users_map of
     Nothing    -> p_ $ elemText "User not found in Map."
-    Just !user -> viewShowI__ page_info me_id organization forum board thread post user
+    Just !user -> viewShowI__ page_info me_id board thread post user
 
 
 
 viewShowI__
   :: PageInfo
   -> UserId
-  -> OrganizationPackResponse
-  -> ForumPackResponse
   -> BoardPackResponse
   -> ThreadPackResponse
   -> ThreadPostPackResponse
   -> UserSanitizedPackResponse
   -> HTMLView_
 
-viewShowI__ !page_info !me_id !organization !forum !board !thread !post !user = do
+viewShowI__ !page_info !me_id !board !thread !post !user = do
 
   let
-    OrganizationPackResponse{..}  = organization
-    OrganizationResponse{..}      = organizationPackResponseOrganization
-    ForumPackResponse{..}         = forum
-    ForumResponse{..}             = forumPackResponseForum
     BoardPackResponse{..}         = board
     BoardResponse{..}             = boardPackResponseBoard
     ThreadPackResponse{..}        = thread
@@ -232,7 +211,7 @@ viewShowI__ !page_info !me_id !organization !forum !board !thread !post !user = 
       p_ $ Gravatar.viewUser Medium threadPostPackResponseUser
       viewUserStats user
     cldiv_ B.colXs7 $ do
-      ahrefName (threadResponseName <> "/" <> tshow threadPostResponseId) $ routeWith' $ OrganizationsForumsBoardsThreadsPosts organizationResponseName forumResponseName boardResponseName threadResponseName (ShowI threadPostResponseId)
+      ahrefName (threadResponseName <> "/" <> tshow threadPostResponseId) $ routeWith' $ BoardsThreadsPosts boardResponseName threadResponseName (ShowI threadPostResponseId)
       p_ $ elemText (prettyUTCTimeMaybe threadPostResponseCreatedAt)
       button_ [onClick $ \_ _ -> dispatch $ ThreadPost.quote post] $ elemText "quote"
 
@@ -251,18 +230,14 @@ viewShowI__ !page_info !me_id !organization !forum !board !thread !post !user = 
           threadPostPackResponsePermissions
           permCreateEmpty
           permReadEmpty
-          (button_editThreadPost $ routeWith' $ OrganizationsForumsBoardsThreadsPosts organizationResponseName forumResponseName boardResponseName threadResponseName (EditI threadPostResponseId))
-          (button_deleteThreadPost $ routeWith' $ OrganizationsForumsBoardsThreadsPosts organizationResponseName forumResponseName boardResponseName threadResponseName (DeleteI threadPostResponseId))
+          (button_editThreadPost $ routeWith' $ BoardsThreadsPosts boardResponseName threadResponseName (EditI threadPostResponseId))
+          (button_deleteThreadPost $ routeWith' $ BoardsThreadsPosts boardResponseName threadResponseName (DeleteI threadPostResponseId))
           permExecuteEmpty
 
       -- ACCESS: Member & Not self
       -- Member: must be a member to like/star
       -- Not Self: can't like/star your own posts
-      if orgMember organization && notSelf me_id threadPostResponseUserId
-        then do
-          Like.view Ent_ThreadPost threadPostResponseId threadPostPackResponseLike
-          Star.view Ent_ThreadPost threadPostResponseId threadPostPackResponseStar
-        else mempty
+      Like.view Ent_ThreadPost threadPostResponseId threadPostPackResponseLike
 
     -- TODO FIXME: STOPPED WORKING
     cldiv_ B.colXs2 $ do
@@ -277,8 +252,6 @@ viewShowI__ !page_info !me_id !organization !forum !board !thread !post !user = 
 viewShared
   :: PageInfo
   -> UserId
-  -> OrganizationPackResponse
-  -> ForumPackResponse
   -> BoardPackResponse
   -> ThreadPackResponse
   -> Map ThreadPostId ThreadPostPackResponse
@@ -289,31 +262,25 @@ viewShared
 viewShared
   !page_info'
   !me_id'
-  !organization'
-  !forum'
   !board'
   !thread'
   !posts'
   !m_request'
   !users_map'
   =
-  defineViewWithSKey "posts-shared" (page_info', me_id', organization', forum', board', thread', posts', m_request', users_map') go
+  defineViewWithSKey "posts-shared" (page_info', me_id', board', thread', posts', m_request', users_map') go
 
   where
-  go (page_info, me_id, organization, forum, board, thread, posts, m_request, users_map) = do
+  go (page_info, me_id, board, thread, posts, m_request, users_map) = do
 
     let
-      OrganizationPackResponse{..} = organization
-      OrganizationResponse{..}     = organizationPackResponseOrganization
-      ForumPackResponse{..}        = forum
-      ForumResponse{..}            = forumPackResponseForum
       BoardPackResponse{..}        = board
       BoardResponse{..}            = boardPackResponseBoard
       ThreadPackResponse{..}       = thread
       ThreadResponse{..}           = threadPackResponseThread
 
     div_ $ do
-      PageNumbers.view1 page_info (routeWith' $ OrganizationsForumsBoardsThreads organizationResponseName forumResponseName boardResponseName (ShowS threadResponseName))
+      PageNumbers.view1 page_info (routeWith' $ BoardsThreads boardResponseName (ShowS threadResponseName))
       ul_ ["key" $= "posts-list", className_ B.listUnstyled] $ do
 
         forM_ (Map.elems posts) $ \post -> do
@@ -322,7 +289,7 @@ viewShared
           -- iframe_ [ "src" $= "https://www.youtube.com/embed/AVWRQ21Iorc", "height" @= (40 :: Int), "width" @= (100 :: Int) ] mempty
 
           -- re-renders:
-          viewShowI_ page_info me_id organization forum board thread post users_map
+          viewShowI_ page_info me_id board thread post users_map
 
           -- doesn't re-render!!!!
           -- case parseBBCodeWith (defaultParseReader { allowNotClosed = True }) (postDataToBody $ threadPostResponseBody $ threadPostPackResponseThreadPost post) of
@@ -341,7 +308,7 @@ viewShared
             threadPackResponsePermissions
             (viewMod TyCreate threadResponseId Nothing request)
             mempty
-      PageNumbers.view2 page_info (routeWith' $ OrganizationsForumsBoardsThreads organizationResponseName forumResponseName boardResponseName (ShowS threadResponseName))
+      PageNumbers.view2 page_info (routeWith' $ BoardsThreads boardResponseName (ShowS threadResponseName))
 
 
 
@@ -425,9 +392,6 @@ viewUserStats !user =
     [[userSanitizedStatResponseRespect]
     ,[userSanitizedStatResponseThreads]
     ,[userSanitizedStatResponseThreadPosts]
-    ,[userSanitizedStatResponseWorkouts]
-    ,[userSanitizedStatResponseResources]
-    ,[userSanitizedStatResponseLeurons]
     ]
   where
   UserSanitizedPackResponse{..} = user
@@ -461,7 +425,6 @@ viewPostStats !stat =
 --     ,[threadPostStatResponseLikes]
 --     ,[threadPostStatResponseNeutral]
 --     ,[threadPostStatResponseDislikes]
---     ,[threadPostStatResponseStars]
 --     ,[threadPostStatResponseViews]
 --     ]
 --   where
@@ -478,12 +441,10 @@ viewPostStats !stat =
 --     -- p_ $ elemShow threadPostStatResponseLikes
 --     -- p_ $ elemShow threadPostStatResponseNeutral
 --     -- p_ $ elemShow threadPostStatResponseDislikes
---     -- p_ $ elemShow threadPostStatResponseStars
 --     -- p_ $ elemShow threadPostStatResponseViews
 --     -- p_ $ elemShow (threadPostStatResponseLikes stat)
 --     -- p_ $ elemShow (threadPostStatResponseNeutral stat)
 --     -- p_ $ elemShow (threadPostStatResponseDislikes stat)
---     -- p_ $ elemShow (threadPostStatResponseStars stat)
 --     -- p_ $ elemShow (threadPostStatResponseViews stat)
 --     -- p_ $ elemShow $ threadPostStatResponseLikes - threadPostStatResponseDislikes
 --   -- where
