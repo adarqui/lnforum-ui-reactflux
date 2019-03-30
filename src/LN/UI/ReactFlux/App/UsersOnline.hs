@@ -40,6 +40,8 @@ viewUsersOnline l_users_online_map = do
         Loading.loader1 l_users_online_map' $ \users_online_map -> do
           viewUsersOnline_ users_online_map
 
+
+
 viewUsersOnline_
   :: Map UserId UserSanitizedResponse
   -> HTMLView_

@@ -1,9 +1,9 @@
 {-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module LN.UI.ReactFlux.App.ForumStats (
-  viewForumStats,
-  viewForumStats_
+module LN.UI.ReactFlux.App.MessagesOfTheWeek (
+  viewMessagesOfTheWeek,
+  viewMessagesOfTheWeek_
 ) where
 
 
@@ -22,32 +22,28 @@ import           LN.UI.ReactFlux.Types
 
 
 --
--- Forum Stats
--- 144382 Posts in 5532 Topics by 460 Members. Latest Member: fitnessvolts
--- Latest Post: "Re: The adarq.org forum ..." ( Today at 11:27:47 am )
--- View the most recent posts on the forum.
--- [More Stats]
+-- Re: ADARQ's Journal by adarqui (Progress Journals & Experimental Routines) Today at 06:00:30 pm
 --
-viewForumStats
+viewMessagesOfTheWeek
   :: Loader (Map ThreadPostId ThreadPostPackResponse)
   -> HTMLView_
 
-viewForumStats l_posts_map = do
-  defineViewWithSKey "forums-stats-1" (l_posts_map) $ \l_posts_map' -> do
+viewMessagesOfTheWeek l_posts_map = do
+  defineViewWithSKey "forums-messages-of-the-week" (l_posts_map) $ \l_posts_map' -> do
     cldiv_ B.containerFluid $ do
       cldiv_ B.pageHeader $ do
-        h4_ $ elemText "Forum Stats"
+        h4_ $ elemText "Messages of the week"
         Loading.loader1 l_posts_map' $ \posts_map -> do
-          viewForumStats_ posts_map
+          viewMessagesOfTheWeek_ posts_map
 
 
 
-viewForumStats_
+viewMessagesOfTheWeek_
   :: Map ThreadPostId ThreadPostPackResponse
   -> HTMLView_
 
-viewForumStats_ posts_map = do
-  defineViewWithSKey "forums-stats-2" (posts_map) go
+viewMessagesOfTheWeek_ posts_map = do
+  defineViewWithSKey "forums-messages-of-the-week_" (posts_map) go
   where
   go posts_map' = do
-    p_ $ elemText "TODO FIXME: forum stats"
+    p_ $ elemText "TODO FIXME: messages of the week"

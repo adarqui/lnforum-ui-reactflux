@@ -10,8 +10,7 @@
 {-# LANGUAGE TypeFamilies        #-}
 
 module LN.UI.ReactFlux.App.Home (
-  viewShowS,
-  viewMessagesOfTheWeek_
+  viewShowS
 ) where
 
 
@@ -89,8 +88,9 @@ import           LN.UI.ReactFlux.View.Field
 import           LN.UI.ReactFlux.View.Internal
 
 import           LN.UI.ReactFlux.App.ForumStats        (viewForumStats)
-import           LN.UI.ReactFlux.App.UsersOnline       (viewUsersOnline)
+import           LN.UI.ReactFlux.App.MessagesOfTheWeek (viewMessagesOfTheWeek)
 import           LN.UI.ReactFlux.App.RecentPosts       (viewRecentPosts)
+import           LN.UI.ReactFlux.App.UsersOnline       (viewUsersOnline)
 
 
 
@@ -225,30 +225,3 @@ viewMod !tycrud' !m_forum_id' !request' = do
         (dispatch Save)
         (const $ dispatch Save)
         (routeWith' Home)
-
-
-
---
--- Re: ADARQ's Journal by adarqui (Progress Journals & Experimental Routines) Today at 06:00:30 pm
---
-viewMessagesOfTheWeek
-  :: Loader (Map ThreadPostId ThreadPostPackResponse)
-  -> HTMLView_
-
-viewMessagesOfTheWeek l_posts_map = do
-  defineViewWithSKey "forums-messages-of-the-week" (l_posts_map) $ \l_posts_map' -> do
-    cldiv_ B.containerFluid $ do
-      cldiv_ B.pageHeader $ do
-        h4_ $ elemText "Messages of the week"
-        Loading.loader1 l_posts_map' $ \posts_map -> do
-          viewMessagesOfTheWeek_ posts_map
-
-viewMessagesOfTheWeek_
-  :: Map ThreadPostId ThreadPostPackResponse
-  -> HTMLView_
-
-viewMessagesOfTheWeek_ posts_map = do
-  defineViewWithSKey "forums-messages-of-the-week_" (posts_map) go
-  where
-  go posts_map' = do
-    p_ $ elemText "TODO FIXME: messages of the week"

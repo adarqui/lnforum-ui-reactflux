@@ -34,6 +34,7 @@ library
                      , LN.UI.ReactFlux.App.Like
                      , LN.UI.ReactFlux.App.Home
                      , LN.UI.ReactFlux.App.Loader
+                     , LN.UI.ReactFlux.App.MessagesOfTheWeek
                      , LN.UI.ReactFlux.App.NavBar
                      , LN.UI.ReactFlux.App.NotFound
                      , LN.UI.ReactFlux.App.Oops
