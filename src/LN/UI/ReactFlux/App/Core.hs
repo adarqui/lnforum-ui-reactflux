@@ -50,7 +50,6 @@ import qualified LN.UI.ReactFlux.App.Boards           as Boards
 import qualified LN.UI.ReactFlux.App.Boards           as Boards
 import qualified LN.UI.ReactFlux.App.Breadcrumbs      as Breadcrumbs
 import           LN.UI.ReactFlux.App.Core.Shared      as A
-import qualified LN.UI.ReactFlux.App.Forums           as Forums
 import qualified LN.UI.ReactFlux.App.Home             as Home
 import qualified LN.UI.ReactFlux.App.Layout           as Layout
 import qualified LN.UI.ReactFlux.App.NavBar           as NavBar
@@ -101,7 +100,7 @@ renderRouteView !store' = do
   go :: Store -> HTMLView_
   go store@Store{..} = do
     case _route of
-      RouteWith Home _                        -> Home.view
+      RouteWith Home _                        -> Home.viewShowS _pageInfo _l_m_forum _l_boards _l_recentThreadPosts
       RouteWith About _                       -> About.view
       RouteWith Portal _                      -> Portal.view
 

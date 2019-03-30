@@ -55,7 +55,6 @@ import           LN.UI.Core.Router                     (CRUD (..), Params,
 import           LN.UI.ReactFlux.Access
 import           LN.UI.ReactFlux.App.Core.Shared
 import qualified LN.UI.ReactFlux.App.Delete            as Delete
-import qualified LN.UI.ReactFlux.App.Forums            as Forums (viewIndex_)
 import qualified LN.UI.ReactFlux.App.Gravatar          as Gravatar
 import           LN.UI.ReactFlux.App.Loader            (Loader (..))
 import qualified LN.UI.ReactFlux.App.Loader            as Loader
