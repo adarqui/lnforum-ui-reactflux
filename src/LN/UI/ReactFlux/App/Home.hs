@@ -89,6 +89,7 @@ import           LN.UI.ReactFlux.View.Button
 import           LN.UI.ReactFlux.View.Field
 import           LN.UI.ReactFlux.View.Internal
 
+import           LN.UI.ReactFlux.App.ForumStats        (viewForumStats)
 import           LN.UI.ReactFlux.App.UsersOnline       (viewUsersOnline)
 
 
@@ -294,34 +295,3 @@ viewRecentPosts_ !posts_map = do
             ahrefName board_name $ routeWith' (Boards (ShowS board_name))
             elemText ") at "
             elemText $ prettyUTCTimeMaybe threadPostResponseCreatedAt
-
-
-
---
--- Forum Stats
--- 144382 Posts in 5532 Topics by 460 Members. Latest Member: fitnessvolts
--- Latest Post: "Re: The adarq.org forum ..." ( Today at 11:27:47 am )
--- View the most recent posts on the forum.
--- [More Stats]
---
-viewForumStats
-  :: Loader (Map ThreadPostId ThreadPostPackResponse)
-  -> HTMLView_
-
-viewForumStats l_posts_map = do
-  defineViewWithSKey "forums-stats-1" (l_posts_map) $ \l_posts_map' -> do
-    cldiv_ B.containerFluid $ do
-      cldiv_ B.pageHeader $ do
-        h4_ $ elemText "Forum Stats"
-        Loading.loader1 l_posts_map' $ \posts_map -> do
-          viewForumStats_ posts_map
-
-viewForumStats_
-  :: Map ThreadPostId ThreadPostPackResponse
-  -> HTMLView_
-
-viewForumStats_ posts_map = do
-  defineViewWithSKey "forums-stats-2" (posts_map) go
-  where
-  go posts_map' = do
-    p_ $ elemText "TODO FIXME: forum stats"
