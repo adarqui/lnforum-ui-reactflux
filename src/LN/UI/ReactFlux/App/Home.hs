@@ -11,8 +11,7 @@
 
 module LN.UI.ReactFlux.App.Home (
   viewShowS,
-  viewMessagesOfTheWeek_,
-  viewRecentPosts_
+  viewMessagesOfTheWeek_
 ) where
 
 
@@ -91,6 +90,7 @@ import           LN.UI.ReactFlux.View.Internal
 
 import           LN.UI.ReactFlux.App.ForumStats        (viewForumStats)
 import           LN.UI.ReactFlux.App.UsersOnline       (viewUsersOnline)
+import           LN.UI.ReactFlux.App.RecentPosts       (viewRecentPosts)
 
 
 
@@ -252,46 +252,3 @@ viewMessagesOfTheWeek_ posts_map = do
   where
   go posts_map' = do
     p_ $ elemText "TODO FIXME: messages of the week"
-
-
-
---
--- Re: ADARQ's Journal by adarqui (Progress Journals & Experimental Routines) Today at 06:00:30 pm
---
-viewRecentPosts
-  :: Loader (Map ThreadPostId ThreadPostPackResponse)
-  -> HTMLView_
-
-viewRecentPosts !l_posts_map = do
-  defineViewWithSKey "view-recent-posts-1" (l_posts_map) $ \l_posts_map' -> do
-    cldiv_ B.containerFluid $ do
-      cldiv_ B.pageHeader $ h4_ $ elemText "Recent posts"
-      Loading.loader1 l_posts_map' $ \posts_map -> do
-        viewRecentPosts_ posts_map
-
-viewRecentPosts_
-  :: Map ThreadPostId ThreadPostPackResponse
-  -> HTMLView_
-
-viewRecentPosts_ !posts_map = do
-  defineViewWithSKey "view-recent-posts-2" (posts_map) $ \posts_map' -> do
-    ul_ [className_ B.listUnstyled] $ do
-      forM_ (sortThreadPostPacks SortOrderBy_Dsc posts_map') $ \pack@ThreadPostPackResponse{..} -> do
-        let
-          post@ThreadPostResponse{..} = threadPostPackResponseThreadPost
-          m_board = threadPostPackResponseWithBoard
-          m_thread = threadPostPackResponseWithThread
-          board_name = maybe "unknown" boardResponseName m_board
-          thread_name = maybe "unknown" threadResponseName m_thread
-          user@UserSanitizedResponse{..} = threadPostPackResponseUser
-        li_ $ do
-          p_ $ do
-            Gravatar.viewUser XSmall threadPostPackResponseUser
-            elemText " "
-            ahrefName (thread_name <> "/" <> tshow threadPostResponseId) $ routeWith' (BoardsThreadsPosts board_name thread_name (ShowI threadPostResponseId))
-            elemText " by "
-            ahref $ routeWith' (Users (ShowS userSanitizedResponseName))
-            elemText " ("
-            ahrefName board_name $ routeWith' (Boards (ShowS board_name))
-            elemText ") at "
-            elemText $ prettyUTCTimeMaybe threadPostResponseCreatedAt
