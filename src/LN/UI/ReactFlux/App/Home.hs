@@ -1,13 +1,13 @@
-{-# LANGUAGE BangPatterns      #-}
-{-# LANGUAGE DeriveAnyClass    #-}
-{-# LANGUAGE DeriveGeneric     #-}
-{-# LANGUAGE LambdaCase        #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE Rank2Types        #-}
-{-# LANGUAGE RecordWildCards   #-}
-{-# LANGUAGE TypeFamilies      #-}
-{-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE BangPatterns        #-}
+{-# LANGUAGE DeriveAnyClass      #-}
+{-# LANGUAGE DeriveGeneric       #-}
+{-# LANGUAGE FlexibleContexts    #-}
+{-# LANGUAGE LambdaCase          #-}
+{-# LANGUAGE OverloadedStrings   #-}
+{-# LANGUAGE Rank2Types          #-}
+{-# LANGUAGE RecordWildCards     #-}
+{-# LANGUAGE TypeFamilies        #-}
 
 module LN.UI.ReactFlux.App.Home (
   viewShowS,
@@ -88,6 +88,8 @@ import           LN.UI.ReactFlux.Types
 import           LN.UI.ReactFlux.View.Button
 import           LN.UI.ReactFlux.View.Field
 import           LN.UI.ReactFlux.View.Internal
+
+import           LN.UI.ReactFlux.App.UsersOnline       (viewUsersOnline)
 
 
 
@@ -323,34 +325,3 @@ viewForumStats_ posts_map = do
   where
   go posts_map' = do
     p_ $ elemText "TODO FIXME: forum stats"
-
-
-
---
--- Users Online
--- 1 Guest, 1 User
--- Users active in past 15 minutes:
--- adarqui
--- Most Online Today: 4. Most Online Ever: 219 (September 14, 2012, 04:53:02 pm)
---
-viewUsersOnline
-  :: Loader (Map ThreadPostId ThreadPostPackResponse)
-  -> HTMLView_
-
-viewUsersOnline l_posts_map = do
-  defineViewWithSKey "users-online-1" (l_posts_map) $ \l_posts_map' -> do
-    cldiv_ B.containerFluid $ do
-      cldiv_ B.pageHeader $ do
-        h4_ $ elemText "Users Online"
-        Loading.loader1 l_posts_map' $ \posts_map -> do
-          viewUsersOnline_ posts_map
-
-viewUsersOnline_
-  :: Map ThreadPostId ThreadPostPackResponse
-  -> HTMLView_
-
-viewUsersOnline_ posts_map = do
-  defineViewWithSKey "users-online-2" (posts_map) go
-  where
-  go posts_map' = do
-    p_ $ elemText "TODO FIXME: users-online"

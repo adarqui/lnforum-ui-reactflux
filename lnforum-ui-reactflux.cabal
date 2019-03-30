@@ -43,6 +43,7 @@ library
                      , LN.UI.ReactFlux.App.Threads
                      , LN.UI.ReactFlux.App.ThreadPosts
                      , LN.UI.ReactFlux.App.Types
+                     , LN.UI.ReactFlux.App.UsersOnline
                      , LN.UI.ReactFlux.Helpers.ReactFluxDOM
                      , LN.UI.ReactFlux.Helpers.ReactFluxView
                      , LN.UI.ReactFlux.View
