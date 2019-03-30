@@ -6,6 +6,8 @@
 {-# LANGUAGE Rank2Types        #-}
 {-# LANGUAGE RecordWildCards   #-}
 {-# LANGUAGE TypeFamilies      #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
 
 module LN.UI.ReactFlux.App.Home (
   viewShowS,
@@ -96,87 +98,48 @@ viewShowS
   -> Loader (Map ThreadPostId ThreadPostPackResponse)
   -> HTMLView_
 
-viewShowS !page_info' !l_m_forum' !l_boards' !l_recent_posts' = do
-  defineViewWithSKey "forums-show-1" (page_info', l_m_forum', l_boards', l_recent_posts') go
-
+viewShowS !page_info !l_m_forum !l_boards !l_recent_posts = do
+  defineViewWithSKey "forums-show-1" (page_info, l_m_forum, l_boards, l_recent_posts) go
   where
-  go (page_info, l_m_forum, l_boards, l_recent_posts) = do
+  go (page_info', l_m_forum', l_boards', l_recent_posts') = do
 
     cldiv_ B.containerFluid $ do
       cldiv_ B.pageHeader $ do
-        h2_ $ elemText "yo"
 
-    Loading.loader1 l_boards $ \boards -> do
-      Boards.viewIndex_ page_info boards
+        Loading.loader1 l_m_forum' $ \m_forum -> do
+          case m_forum of
+            Nothing -> mempty
+            Just forum -> do
+              let
+                ForumPackResponse{..}        = forum
+                ForumResponse{..}            = forumPackResponseForum
 
-    -- Loading.loader3 l_m_forum l_boards l_recent_posts $ \m_forum boards recent_posts -> do
-    --   case m_forum of
-    --     Just forum ->
-    --       viewShowS_
-    --         page_info
-    --         forum
-    --         (Boards.viewIndex_ page_info boards)
-    --         (viewRecentPosts_ recent_posts)
-    --         (viewMessagesOfTheWeek_)
-    --     _ -> Oops.view
+              h2_ $ elemText forumResponseDisplayName
+              p_ [className_ B.lead] $ elemText $ maybe "No description." id forumResponseDescription
 
+              -- ACCESS: Forum
+              -- * Create: can create boards within a forum
+              -- * Update: can edit forum settings
+              -- * Delete: can delete the forum
+              --
+              buttonGroup_HorizontalSm1 $ do
+                permissionsHTML'
+                  forumPackResponsePermissions
+                  (button_newBoard $ routeWith' $ Boards New)
+                  permReadEmpty
+                  (button_editForum $ routeWith' $ Forums (EditS forumResponseName))
+                  (button_deleteForum $ routeWith' $ Forums (DeleteS forumResponseName))
+                  permExecuteEmpty
 
+        Boards.viewIndex page_info' l_boards'
 
-viewShowS_
-  :: PageInfo
-  -> ForumPackResponse
-  -> HTMLView_ -- ^ plumbing boards
-  -> HTMLView_ -- ^ plumbing recent posts
-  -> HTMLView_ -- ^ plumbing messages of the week
-  -> HTMLView_
+        viewRecentPosts l_recent_posts
 
-viewShowS_ !page_info' !forum' plumbing_boards' !plumbing_recent_posts' !plumbing_messages_of_the_week' = do
-  defineViewWithSKey
-    "forums-show-2"
-    (page_info', forum', plumbing_boards', plumbing_recent_posts', plumbing_messages_of_the_week')
-    go
+        viewMessagesOfTheWeek l_recent_posts
 
-  where
-  go (page_info, forum, plumbing_boards, plumbing_recent_posts, plumbing_messages_of_the_week) = do
+        viewForumStats CantLoad
 
-    let
-      ForumPackResponse{..}        = forum
-      ForumResponse{..}            = forumPackResponseForum
-
-    cldiv_ B.containerFluid $ do
-      cldiv_ B.pageHeader $ do
-        h2_ $ elemText forumResponseDisplayName
-        p_ [className_ B.lead] $ elemText $ maybe "No description." id forumResponseDescription
-
-        -- ACCESS: Forum
-        -- * Create: can create boards within a forum
-        -- * Update: can edit forum settings
-        -- * Delete: can delete the forum
-        --
-        buttonGroup_HorizontalSm1 $ do
-          permissionsHTML'
-            forumPackResponsePermissions
-            (button_newBoard $ routeWith' $ Boards New)
-            permReadEmpty
-            (button_editForum $ routeWith' $ Forums (EditS forumResponseName))
-            (button_deleteForum $ routeWith' $ Forums (DeleteS forumResponseName))
-            permExecuteEmpty
-
-        div_ plumbing_boards
-        div_ plumbing_recent_posts
-        div_ plumbing_messages_of_the_week
-
-        -- div_ plumbing_users_online
-        --
-
-        cldiv_ B.containerFluid $ do
-          cldiv_ B.pageHeader $ do
-            h4_ $ p_ $ elemText "Forum stats - TODO"
-
-        cldiv_ B.containerFluid $ do
-          cldiv_ B.pageHeader $ do
-            h4_ $ p_ $ elemText "Users online - TODO"
-
+        viewUsersOnline CantLoad
 
 
 -- viewNew
@@ -265,51 +228,129 @@ viewMod !tycrud' !m_forum_id' !request' = do
 --
 -- Re: ADARQ's Journal by adarqui (Progress Journals & Experimental Routines) Today at 06:00:30 pm
 --
-viewMessagesOfTheWeek_
-  :: HTMLView_
+viewMessagesOfTheWeek
+  :: Loader (Map ThreadPostId ThreadPostPackResponse)
+  -> HTMLView_
 
-viewMessagesOfTheWeek_ = do
-  defineViewWithSKey "forums-messages-of-the-week" (True) go
-  where
-  go _ = do
+viewMessagesOfTheWeek l_posts_map = do
+  defineViewWithSKey "forums-messages-of-the-week" (l_posts_map) $ \l_posts_map' -> do
     cldiv_ B.containerFluid $ do
       cldiv_ B.pageHeader $ do
         h4_ $ elemText "Messages of the week"
+        Loading.loader1 l_posts_map' $ \posts_map -> do
+          viewMessagesOfTheWeek_ posts_map
+
+viewMessagesOfTheWeek_
+  :: Map ThreadPostId ThreadPostPackResponse
+  -> HTMLView_
+
+viewMessagesOfTheWeek_ posts_map = do
+  defineViewWithSKey "forums-messages-of-the-week_" (posts_map) go
+  where
+  go posts_map' = do
+    p_ $ elemText "TODO FIXME: messages of the week"
 
 
 
 --
 -- Re: ADARQ's Journal by adarqui (Progress Journals & Experimental Routines) Today at 06:00:30 pm
 --
+viewRecentPosts
+  :: Loader (Map ThreadPostId ThreadPostPackResponse)
+  -> HTMLView_
+
+viewRecentPosts !l_posts_map = do
+  defineViewWithSKey "view-recent-posts-1" (l_posts_map) $ \l_posts_map' -> do
+    cldiv_ B.containerFluid $ do
+      cldiv_ B.pageHeader $ h4_ $ elemText "Recent posts"
+      Loading.loader1 l_posts_map' $ \posts_map -> do
+        viewRecentPosts_ posts_map
+
 viewRecentPosts_
   :: Map ThreadPostId ThreadPostPackResponse
   -> HTMLView_
 
-viewRecentPosts_ !posts_map' = do
-  defineViewWithSKey "forums-recent-posts" (posts_map') go
+viewRecentPosts_ !posts_map = do
+  defineViewWithSKey "view-recent-posts-2" (posts_map) $ \posts_map' -> do
+    ul_ [className_ B.listUnstyled] $ do
+      forM_ (sortThreadPostPacks SortOrderBy_Dsc posts_map') $ \pack@ThreadPostPackResponse{..} -> do
+        let
+          post@ThreadPostResponse{..} = threadPostPackResponseThreadPost
+          m_board = threadPostPackResponseWithBoard
+          m_thread = threadPostPackResponseWithThread
+          board_name = maybe "unknown" boardResponseName m_board
+          thread_name = maybe "unknown" threadResponseName m_thread
+          user@UserSanitizedResponse{..} = threadPostPackResponseUser
+        li_ $ do
+          p_ $ do
+            Gravatar.viewUser XSmall threadPostPackResponseUser
+            elemText " "
+            ahrefName (thread_name <> "/" <> tshow threadPostResponseId) $ routeWith' (BoardsThreadsPosts board_name thread_name (ShowI threadPostResponseId))
+            elemText " by "
+            ahref $ routeWith' (Users (ShowS userSanitizedResponseName))
+            elemText " ("
+            ahrefName board_name $ routeWith' (Boards (ShowS board_name))
+            elemText ") at "
+            elemText $ prettyUTCTimeMaybe threadPostResponseCreatedAt
 
-  where
-  go (posts_map) = do
 
+
+--
+-- Forum Stats
+-- 144382 Posts in 5532 Topics by 460 Members. Latest Member: fitnessvolts
+-- Latest Post: "Re: The adarq.org forum ..." ( Today at 11:27:47 am )
+-- View the most recent posts on the forum.
+-- [More Stats]
+--
+viewForumStats
+  :: Loader (Map ThreadPostId ThreadPostPackResponse)
+  -> HTMLView_
+
+viewForumStats l_posts_map = do
+  defineViewWithSKey "forums-stats-1" (l_posts_map) $ \l_posts_map' -> do
     cldiv_ B.containerFluid $ do
-      cldiv_ B.pageHeader $ h4_ $ elemText "Recent posts"
-      ul_ [className_ B.listUnstyled] $ do
-        forM_ (sortThreadPostPacks SortOrderBy_Dsc posts_map) $ \pack@ThreadPostPackResponse{..} -> do
-          let
-            post@ThreadPostResponse{..} = threadPostPackResponseThreadPost
-            m_board = threadPostPackResponseWithBoard
-            m_thread = threadPostPackResponseWithThread
-            board_name = maybe "unknown" boardResponseName m_board
-            thread_name = maybe "unknown" threadResponseName m_thread
-            user@UserSanitizedResponse{..} = threadPostPackResponseUser
-          li_ $ do
-            p_ $ do
-              Gravatar.viewUser XSmall threadPostPackResponseUser
-              elemText " "
-              ahrefName (thread_name <> "/" <> tshow threadPostResponseId) $ routeWith' (BoardsThreadsPosts board_name thread_name (ShowI threadPostResponseId))
-              elemText " by "
-              ahref $ routeWith' (Users (ShowS userSanitizedResponseName))
-              elemText " ("
-              ahrefName board_name $ routeWith' (Boards (ShowS board_name))
-              elemText ") at "
-              elemText $ prettyUTCTimeMaybe threadPostResponseCreatedAt
+      cldiv_ B.pageHeader $ do
+        h4_ $ elemText "Forum Stats"
+        Loading.loader1 l_posts_map' $ \posts_map -> do
+          viewForumStats_ posts_map
+
+viewForumStats_
+  :: Map ThreadPostId ThreadPostPackResponse
+  -> HTMLView_
+
+viewForumStats_ posts_map = do
+  defineViewWithSKey "forums-stats-2" (posts_map) go
+  where
+  go posts_map' = do
+    p_ $ elemText "TODO FIXME: forum stats"
+
+
+
+--
+-- Users Online
+-- 1 Guest, 1 User
+-- Users active in past 15 minutes:
+-- adarqui
+-- Most Online Today: 4. Most Online Ever: 219 (September 14, 2012, 04:53:02 pm)
+--
+viewUsersOnline
+  :: Loader (Map ThreadPostId ThreadPostPackResponse)
+  -> HTMLView_
+
+viewUsersOnline l_posts_map = do
+  defineViewWithSKey "users-online-1" (l_posts_map) $ \l_posts_map' -> do
+    cldiv_ B.containerFluid $ do
+      cldiv_ B.pageHeader $ do
+        h4_ $ elemText "Users Online"
+        Loading.loader1 l_posts_map' $ \posts_map -> do
+          viewUsersOnline_ posts_map
+
+viewUsersOnline_
+  :: Map ThreadPostId ThreadPostPackResponse
+  -> HTMLView_
+
+viewUsersOnline_ posts_map = do
+  defineViewWithSKey "users-online-2" (posts_map) go
+  where
+  go posts_map' = do
+    p_ $ elemText "TODO FIXME: users-online"
