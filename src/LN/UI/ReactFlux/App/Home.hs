@@ -26,6 +26,7 @@ import qualified Data.Map                              as Map
 import           Data.Monoid                           ((<>))
 import           Data.Rehtie                           (rehtie)
 import           Data.Text                             (Text)
+import qualified Data.Text                             as Text
 import           Data.Tuple.Select
 import           Data.Typeable                         (Typeable)
 import           GHC.Generics                          (Generic)
@@ -100,16 +101,25 @@ viewShowS !page_info' !l_m_forum' !l_boards' !l_recent_posts' = do
 
   where
   go (page_info, l_m_forum, l_boards, l_recent_posts) = do
-    Loading.loader3 l_m_forum l_boards l_recent_posts $ \m_forum boards recent_posts -> do
-      case m_forum of
-        Just forum ->
-          viewShowS_
-            page_info
-            forum
-            (Boards.viewIndex_ page_info boards)
-            (viewRecentPosts_ recent_posts)
-            (viewMessagesOfTheWeek_)
-        _ -> Oops.view
+
+    cldiv_ B.containerFluid $ do
+      cldiv_ B.pageHeader $ do
+        h2_ $ elemText "yo"
+        p_ $ elemText $ Text.pack $ show l_boards
+
+    Loading.loader1 l_boards $ \boards -> do
+      Boards.viewIndex_ page_info boards
+
+    -- Loading.loader3 l_m_forum l_boards l_recent_posts $ \m_forum boards recent_posts -> do
+    --   case m_forum of
+    --     Just forum ->
+    --       viewShowS_
+    --         page_info
+    --         forum
+    --         (Boards.viewIndex_ page_info boards)
+    --         (viewRecentPosts_ recent_posts)
+    --         (viewMessagesOfTheWeek_)
+    --     _ -> Oops.view
 
 
 
