@@ -105,7 +105,6 @@ viewShowS !page_info' !l_m_forum' !l_boards' !l_recent_posts' = do
     cldiv_ B.containerFluid $ do
       cldiv_ B.pageHeader $ do
         h2_ $ elemText "yo"
-        p_ $ elemText $ Text.pack $ show l_boards
 
     Loading.loader1 l_boards $ \boards -> do
       Boards.viewIndex_ page_info boards
