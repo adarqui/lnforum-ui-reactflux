@@ -100,7 +100,6 @@ viewIndex
 
 viewIndex !page_info' !l_boards' = do
   defineViewWithSKey "boards-index-1" (page_info', l_boards') $ \(page_info, l_boards) -> do
-    h1_ [className_ B.textCenter] $ elemText "Boards"
     Loader.loader1 l_boards $ \boards -> do
       viewIndex_ page_info boards
 
@@ -127,7 +126,7 @@ viewIndex_ !page_info' !boards_map' = do
               p_ $ elemText "icon"
             cldiv_ B.colXs5 $ do
               p_ $ ahrefName boardResponseDisplayName $ routeWith' $ Boards (ShowS boardResponseName)
-              p_ $ elemText $ maybe "No description." id boardResponseDescription
+              ebyam boardResponseDescription mempty $ p_ . elemText
             cldiv_ B.colXs2 $ do
               showTableClean
                 []
@@ -212,7 +211,7 @@ viewShowS_ !page_info' !board' !plumbing_threads' = do
     cldiv_ B.containerFluid $ do
       cldiv_ B.pageHeader $ do
         h2_ $ elemText boardResponseDisplayName
-        p_ [className_ B.lead] $ elemText $ maybe "No description." id boardResponseDescription
+        ebyam boardResponseDescription mempty $ p_ [className_ B.lead] . elemText
 
         p_ $ do
           buttonGroup_HorizontalSm1 $ do
