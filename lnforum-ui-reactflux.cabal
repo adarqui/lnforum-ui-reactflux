@@ -69,7 +69,7 @@ library
                      , time
                      , transformers
                      , tuple
-                     , web-routes == 99.99
+                     , web-routes == 0.27.14.2
                      , lnforum-sanitize
                      , lnforum-validate
                      , lnforum-ui-core
@@ -96,7 +96,7 @@ test-suite lnforum-ui-reactflux-test
   build-depends:       base
                      , hspec
                      , text
-                     , web-routes
+                     , web-routes == 0.27.14.2
                      , lnforum-types-gen
                      , lnforum-ui-reactflux
   ghc-options:         -Wall -O2 -threaded -rtsopts -with-rtsopts=-N
