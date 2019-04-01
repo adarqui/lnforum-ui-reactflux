@@ -63,7 +63,7 @@ library
                      , either
                      , ghcjs-router
                      , parsec
-                     , react-flux == 1.1.1
+                     , react-flux == 1.2.3
                      , react-flux-router
                      , text
                      , time

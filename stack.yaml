@@ -35,7 +35,7 @@ packages:
 - '../web-routes' ## <-- custom web-routes with my fromPathInfoParams function
 extra-deps:
 - haskell-src-exts-1.16.0.1
-- react-flux-1.1.1
+- react-flux-1.2.3
 - ref-tf-0.4
 - html-entities-1.1.2
 - http-client-0.5.14
